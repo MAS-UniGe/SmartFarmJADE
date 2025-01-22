@@ -10,4 +10,6 @@ public interface Tile {
     TileType getType();
 
     Color getColor();
+
+    void update();
 }

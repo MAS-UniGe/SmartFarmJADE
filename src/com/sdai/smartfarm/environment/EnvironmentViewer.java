@@ -4,7 +4,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.environment.tiles.Tile;
+import com.sdai.smartfarm.settings.WindowSettings;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -12,24 +14,25 @@ import java.awt.Color;
 
 public class EnvironmentViewer extends JPanel {
 
-    private static final int DEFAULT_WIDTH = 500;
-    private static final int DEFAULT_HEIGHT = 500;
+    private static WindowSettings windowSettings = WindowSettings.defaultWindowSettings();
 
     private final transient Environment environment;
 
-    private int tileSize = 50;      // this initial value is here just to avoid a potential NullPtrException: it gets overridden immediately
+    private float worldX;
+    private float worldY;
 
-    private final int minTileSize = 10;
-    private final int maxTileSize = 100;
-
-    private float worldX = 0.0f;
-    private float worldY = 0.0f;
+    private int tileSize;
 
     public EnvironmentViewer(Environment environment) {
         this.environment = environment;
+
+        worldX = environment.getWidth() / 2.0f;
+        worldY = environment.getHeight() / 2.0f;
+        recomputeTileSize();
+
     }
 
-    public void renderEnvironment() {
+    public void createWindow() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Smart Farming Simulation");
             frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -49,18 +52,21 @@ public class EnvironmentViewer extends JPanel {
         g.setColor(Color.BLACK);
         g.fillRect(0, 0, getWidth(), getHeight());
 
+        // The window is splitted into a grid of tiles
         int gridWidth = getWidth() / tileSize + 1;
         int gridHeight = getHeight() / tileSize + 1;
 
         int startX = (int) worldX;
         int startY = (int) worldY;
 
+        // offsets = how much we must offset each tile to be consistent with fractional world X and Y
         int offsetX = (int) ((worldX - startX) * tileSize);
         int offsetY = (int) ((worldY - startY) * tileSize);
 
         for(int row = 0; row < gridHeight; row++) {
             for(int col = 0; col < gridWidth; col++) {
-                
+
+                // Get correct tile from world environment
                 Tile tile = environment.getTile(startX + col, startY + row);
                 if (tile == null)
                     continue;
@@ -68,46 +74,51 @@ public class EnvironmentViewer extends JPanel {
                 int drawX = (col * tileSize) - offsetX;
                 int drawY = (row * tileSize) - offsetY;
 
+                // Draw the tile
                 g.setColor(tile.getColor());
                 g.fillRect(drawX, drawY, tileSize, tileSize);
+
+                // Draw grid lines for better visualization (?) 
+                g.setColor(new Color(100, 100, 100, 40));
+                g.drawRect(drawX, drawY, tileSize, tileSize);
+
+                AgentType agent = environment.getAgentAt(startX + col, startY + row);
+
+                // TODO: think about either switch or polymorphism
+                /*switch(agent) {
+                    DRONE:
+                        break;
+                    ROBOT:
+                        break;
+                    TRACTOR:
+                        break;
+                    //default == null == do nothing
+                }*/
+
+                if (agent != null) {
+                    g.setColor(new Color(44, 44, 44));
+                    g.fillRect(drawX, drawY, tileSize, tileSize);
+                }
 
             }
         }
 
-        /* 
-        // Draw the tiles
-        for (int row = 0; row < environment.getHeight(); row++) {
-            for (int col = 0; col < environment.getWidth(); col++) {
-
-                Tile tile = environment.getTile(row, col);
-                g.setColor(tile.getColor());
-
-                // Calculate tile position
-                int x = col * tileSize;
-                int y = row * tileSize;
-
-                // Draw the tile
-                g.fillRect(x, y, tileSize, tileSize);
-
-                // Draw grid lines for better visualization (?)
-                g.setColor(new Color(100, 100, 100, 50));
-                g.drawRect(x, y, tileSize, tileSize);
-            }
-        }*/
 
     }
 
     @Override
     public Dimension getPreferredSize() {
         // Set the preferred size of the panel to fit the tiles
-        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        return new Dimension(windowSettings.width(), windowSettings.height());
     }
 
     public void recomputeTileSize() {
         int width = getWidth();
         int height = getHeight();
 
-        tileSize = Math.min(width / environment.getWidth(), height / environment.getHeight());
+        tileSize = Math.min(width / windowSettings.gridSize(), height / windowSettings.gridSize());
+
+        tileSize = Math.min(Math.max(tileSize, windowSettings.minTileSize()), windowSettings.maxTileSize());
     }
 
     public int getTileSize() {

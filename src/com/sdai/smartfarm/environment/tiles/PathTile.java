@@ -13,4 +13,9 @@ public class PathTile implements Tile {
     public Color getColor() {
         return Color.GREEN;
     }
+
+    @Override
+    public void update() {
+        
+    }
 }

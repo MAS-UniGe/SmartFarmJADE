@@ -9,13 +9,21 @@ import java.awt.event.MouseMotionAdapter;
 
 public class EnvironmentController {
 
-    private final Environment environment;
-
-    private final EnvironmentViewer environmentViewer;
-
     private static final float MOUSE_SENSITIVITY = 1.0f;
 
+    private static final int TARGET_FPS = 20;
+
+    private static final int TARGET_UPS = 80;
+    
+    private static final long OPTIMAL_RENDER_TIME = 1_000_000_000 / TARGET_FPS;
+
+    private static final long OPTIMAL_UPDATE_TIME = 1_000_000_000 / TARGET_UPS;
+
+    private final Environment environment;
+    private final EnvironmentViewer environmentViewer;
+
     private Point mouseStart = null;
+    private boolean running = false;
 
     public EnvironmentController(Environment environment) {
 
@@ -25,11 +33,43 @@ public class EnvironmentController {
 
     }
 
+    public void stop() {
+        running = false;
+    }
+
     public void init() {
 
         setupEnvironmentViewer();
 
-        environmentViewer.renderEnvironment();
+        environmentViewer.createWindow();
+
+    }
+
+    public void start() {
+
+        running = true;
+
+        long now = System.nanoTime();
+        long lastRender = now;
+        long lastUpdate = now;
+
+        while(running) {
+            now = System.nanoTime();
+
+            if (now - lastUpdate >= OPTIMAL_UPDATE_TIME) {
+
+                lastUpdate = now;
+                environment.update();
+            }
+
+            if (now - lastRender >= OPTIMAL_RENDER_TIME) {
+
+                lastRender = now;
+                environmentViewer.repaint();
+            }
+
+        }
+        
     }
 
     private void setupEnvironmentViewer() {
@@ -76,13 +116,6 @@ public class EnvironmentController {
                 environmentViewer.setWorldY(environmentViewer.getWorldY() + distanceY);
 
                 environmentViewer.repaint();
-                
-                System.out.println(
-                      String.valueOf(environmentViewer.getWorldX()) 
-                    + "; " 
-                    + String.valueOf(environmentViewer.getWorldY())
-                );
-                System.out.println("");
 
             }
         });

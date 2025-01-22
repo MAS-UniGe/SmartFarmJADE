@@ -1,1 +1,4 @@
 bin/
+libs/
+.vscode/
+*.txt
