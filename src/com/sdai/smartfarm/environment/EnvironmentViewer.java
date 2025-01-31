@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.sdai.smartfarm.agents.AgentType;
+import com.sdai.smartfarm.agents.FarmingAgent;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.settings.WindowSettings;
 
@@ -82,7 +83,7 @@ public class EnvironmentViewer extends JPanel {
                 g.setColor(new Color(100, 100, 100, 40));
                 g.drawRect(drawX, drawY, tileSize, tileSize);
 
-                AgentType agent = environment.getAgentAt(startX + col, startY + row);
+                FarmingAgent agent = environment.getAgentAt(startX + col, startY + row);
 
                 // TODO: think about either switch or polymorphism
                 /*switch(agent) {

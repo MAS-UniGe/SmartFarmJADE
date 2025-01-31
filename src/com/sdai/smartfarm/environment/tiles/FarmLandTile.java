@@ -15,6 +15,10 @@ public class FarmLandTile implements Tile {
         crops.seed();
     }
 
+    public Crops getCrops() {
+        return crops;
+    }
+
     @Override
     public TileType getType() {
         return TileType.FARMLAND;

@@ -3,6 +3,9 @@ package com.sdai.smartfarm.settings;
 public record SimulationSettings(
     int mapWidth,
     int mapHeight,
+    int targetFPS,
+    int targetUPS,
+    float mouseSensitivity,
     int dronesNumber
 ) {
 
@@ -10,7 +13,10 @@ public record SimulationSettings(
         return new SimulationSettings(
             100, 
             100,
-            10
+            20,
+            80,
+            1.0f,
+            4
         );
     }
     

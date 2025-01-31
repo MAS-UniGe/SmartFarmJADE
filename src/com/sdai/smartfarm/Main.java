@@ -34,10 +34,11 @@ public class Main {
 
             for(int i = 0; i < simulationSettings.dronesNumber(); i++) {
 
+                int id = DroneAgent.getInstanceNumber();
                 AgentController agent = mainContainer.createNewAgent(
-                    "Drone-" + DroneAgent.getInstanceNumber(),
+                    "Drone-" + id,
                     DroneAgent.class.getName(),
-                    new Object[] {environment} 
+                    new Object[] {environment, id} 
                 );
                 agent.start();
             }

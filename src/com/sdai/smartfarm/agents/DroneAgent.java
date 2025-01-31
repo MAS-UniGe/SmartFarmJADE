@@ -1,14 +1,34 @@
 package com.sdai.smartfarm.agents;
 
-import com.sdai.smartfarm.environment.Environment;
+import java.util.List;
 
-public class DroneAgent extends FarmingAgentAbstract {
+import com.sdai.smartfarm.behaviors.ExploringBehaviour;
+import com.sdai.smartfarm.behaviors.InitBehaviour;
+import com.sdai.smartfarm.behaviors.MasterDroneInitBehavior;
+import com.sdai.smartfarm.environment.Environment;
+import com.sdai.smartfarm.settings.AgentsSettings;
+
+import elki.data.IntegerVector;
+
+public class DroneAgent extends BaseFarmingAgent {
+
+    /* STATIC STUFF */
 
     private static int instanceCounter = 0;
 
     public static int getInstanceNumber() {
         return DroneAgent.instanceCounter++;
     }
+
+    private static AgentsSettings settings = AgentsSettings.defaultAgentsSettings();
+
+    public static void setCropsSettings(AgentsSettings settings) {
+        DroneAgent.settings = settings;
+    }
+
+    ///////////////////
+    
+    // TODO: add clusterization
 
     @Override
     public AgentType getType() {
@@ -19,22 +39,32 @@ public class DroneAgent extends FarmingAgentAbstract {
     protected void setup() {
 
         Object[] args = getArguments();
-        if (args == null || args.length < 1) 
+        if (args == null || args.length < 2) 
             throw new IllegalArgumentException("setup: not enough arguments");
         
-        this.environment = (Environment) args[0];
-    
+        Environment environment = (Environment) args[0];
+        int id = (int) args[1];
+
         Integer x = null;
         Integer y = null;
 
-        if (args.length >= 3) {
-            x = (int) args[1];
-            y = (int) args[2];
+        if (args.length >= 4) {
+            x = (int) args[2];
+            y = (int) args[3];
         }
 
         situate(environment, x, y);
 
-        ///addBehaviour(null);
+        this.environment = environment;
+
+        if(id == 0) {
+            addBehaviour(new MasterDroneInitBehavior());
+        } else {
+            //addBehaviour(new InitBehaviour());
+        }
+        //addBehaviour(new ExploringBehaviour(this, (long) (1000 / settings.droneSpeed())));
     }
+
+    
     
 }

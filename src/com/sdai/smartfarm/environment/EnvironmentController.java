@@ -7,17 +7,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
+import com.sdai.smartfarm.settings.SimulationSettings;
+
 public class EnvironmentController {
 
-    private static final float MOUSE_SENSITIVITY = 1.0f;
+    private static SimulationSettings settings = SimulationSettings.defaultSimulationSettings();
 
-    private static final int TARGET_FPS = 20;
-
-    private static final int TARGET_UPS = 80;
-    
-    private static final long OPTIMAL_RENDER_TIME = 1_000_000_000 / TARGET_FPS;
-
-    private static final long OPTIMAL_UPDATE_TIME = 1_000_000_000 / TARGET_UPS;
+    public static void setSimulationSettings(SimulationSettings settings) {
+        EnvironmentController.settings = settings;
+    }
 
     private final Environment environment;
     private final EnvironmentViewer environmentViewer;
@@ -25,7 +23,9 @@ public class EnvironmentController {
     private Point mouseStart = null;
     private boolean running = false;
 
-    public EnvironmentController(Environment environment) {
+    public EnvironmentController(
+        Environment environment
+    ) {
 
         this.environment = environment;
 
@@ -53,16 +53,19 @@ public class EnvironmentController {
         long lastRender = now;
         long lastUpdate = now;
 
+        final long optimalUpdateTime = 1_000_000_000 / settings.targetUPS();
+        final long optimalRenderTime = 1_000_000_000 / settings.targetFPS();
+        
         while(running) {
             now = System.nanoTime();
 
-            if (now - lastUpdate >= OPTIMAL_UPDATE_TIME) {
+            if (now - lastUpdate >= optimalUpdateTime) {
 
                 lastUpdate = now;
                 environment.update();
             }
 
-            if (now - lastRender >= OPTIMAL_RENDER_TIME) {
+            if (now - lastRender >= optimalRenderTime) {
 
                 lastRender = now;
                 environmentViewer.repaint();
@@ -107,8 +110,8 @@ public class EnvironmentController {
 
                 int tileSize = environmentViewer.getTileSize();
                     
-                float distanceX = -(currentPoint.x - mouseStart.x) * MOUSE_SENSITIVITY / tileSize;
-                float distanceY = -(currentPoint.y - mouseStart.y) * MOUSE_SENSITIVITY / tileSize;
+                float distanceX = -(currentPoint.x - mouseStart.x) * settings.mouseSensitivity() / tileSize;
+                float distanceY = -(currentPoint.y - mouseStart.y) * settings.mouseSensitivity() / tileSize;
 
                 mouseStart = currentPoint;
 

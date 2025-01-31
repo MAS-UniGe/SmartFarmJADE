@@ -1,14 +1,23 @@
 package com.sdai.smartfarm.environment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import com.sdai.smartfarm.agents.AgentType;
+import com.sdai.smartfarm.agents.FarmingAgent;
+import com.sdai.smartfarm.environment.crops.CropsNeeds;
+import com.sdai.smartfarm.environment.crops.CropsState;
 import com.sdai.smartfarm.environment.tiles.FarmLandTile;
 import com.sdai.smartfarm.environment.tiles.PathTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
 
-public class Environment {
+import elki.data.IntegerVector;
+import tutorial.clustering.SameSizeKMeans;
+
+public class Environment implements ObservableEnvironment {
 
     protected final Random rng = new Random();
 
@@ -19,7 +28,7 @@ public class Environment {
 
     // I'm using a 2d array and not an hash table: heavier on the mmeory
     // but faster check on the surroundings
-    protected final AgentType[] agentsMap;
+    protected final FarmingAgent[] agentsMap;
 
     public Environment(int width, int height) {
         this.width = width;
@@ -27,7 +36,7 @@ public class Environment {
 
         this.map = new Tile[width * height];
 
-        this.agentsMap = new AgentType[width * height];
+        this.agentsMap = new FarmingAgent[width * height];
 
         initMap();
     }
@@ -49,12 +58,12 @@ public class Environment {
         return map[y * width + x];
     }
 
-    public AgentType getAgentAt(int x, int y) {
+    public FarmingAgent getAgentAt(int x, int y) {
         if (y < 0 || x < 0 || y >= height || x >= width) return null;
         return agentsMap[y * width + x];
     }
 
-    public boolean trySpawn(AgentType agent, Integer x, Integer y) {
+    public boolean trySpawn(FarmingAgent agent, Integer x, Integer y) {
         if (x == null || y == null || y < 0 || x < 0 || y >= height || x >= width) 
             return false;
 
@@ -78,17 +87,68 @@ public class Environment {
             for (int x = 0; x < width; x++) {
                 if (y % 20 == 0 || y == height - 1 || x % 40 == 0 || x == width - 1)
                     map[y * width + x] = new PathTile();
-                else 
+                else {
                     map[y * width + x] = new FarmLandTile(rng);
+
+                }
 
             }
         }
+
     }
 
+    
     public void update() {
         for(int i = 0; i < width * height; i++) {
             map[i].update();
         }
+    }
+
+    @Override
+    public boolean moveAgent(int xFrom, int yFrom, int xTo, int yTo) {
+        if (yFrom < 0 || yFrom >= height || yTo < 0 || yTo >= height) return false;
+        if (xFrom < 0 || xFrom >= width  || xTo < 0 || xTo >= width ) return false;
+        if (getAgentAt(xFrom, yFrom) == null || getAgentAt(xTo, yTo) != null) return false;
+
+        agentsMap[yTo * width + xTo] = agentsMap[yFrom * width + xFrom];
+        agentsMap[yFrom * width + xFrom] = null;
+        return true;
+    }
+
+    @Override
+    public TileType[] getMap() {
+
+        return Arrays.asList(map).stream().map(Tile::getType).toArray(TileType[]::new);
+
+    };
+
+    @Override
+    public Observation observe(int xCenter, int yCenter, int radius) {
+        TileType[] observedTiles = new TileType[(radius + 1) * (radius + 1)];
+        AgentType[] observedAgents = new AgentType[(radius + 1) * (radius + 1)];
+
+        for(int y = yCenter - radius; y < yCenter + radius + 1; y++) {
+            for(int x = xCenter - radius; x < xCenter + radius + 1; x++) {
+
+                Tile tile = getTile(x, y);
+                if(tile != null) observedTiles[y * width + x] = tile.getType();
+    
+                FarmingAgent agent = getAgentAt(x, y);
+                if(agent != null) observedAgents[y * width + x] = agent.getType();
+
+            }
+        }
+
+        CropsState cropsState = null;
+        CropsNeeds cropsNeeds = null;
+
+        Tile tile = getTile(xCenter, yCenter);
+        if(tile instanceof FarmLandTile farmLandTile) {
+            cropsState = farmLandTile.getCrops().checkState();
+            cropsNeeds = farmLandTile.getCrops().getNeeds();
+        }
+
+        return new Observation(observedTiles, observedAgents, cropsState, cropsNeeds);
     }
     
 }
