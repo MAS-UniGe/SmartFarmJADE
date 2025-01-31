@@ -1,18 +1,16 @@
 package com.sdai.smartfarm.agents;
 
 import java.util.List;
+import java.util.logging.Logger;
 
-import com.sdai.smartfarm.behaviors.ExploringBehaviour;
-import com.sdai.smartfarm.behaviors.InitBehaviour;
-import com.sdai.smartfarm.behaviors.MasterDroneInitBehavior;
+import com.sdai.smartfarm.behaviours.InitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
-import com.sdai.smartfarm.settings.AgentsSettings;
-
-import elki.data.IntegerVector;
 
 public class DroneAgent extends BaseFarmingAgent {
 
     /* STATIC STUFF */
+
+    private static final Logger logger = Logger.getLogger(DroneAgent.class.getName());
 
     private static int instanceCounter = 0;
 
@@ -20,15 +18,11 @@ public class DroneAgent extends BaseFarmingAgent {
         return DroneAgent.instanceCounter++;
     }
 
-    private static AgentsSettings settings = AgentsSettings.defaultAgentsSettings();
-
-    public static void setCropsSettings(AgentsSettings settings) {
-        DroneAgent.settings = settings;
-    }
-
     ///////////////////
     
-    // TODO: add clusterization
+    
+
+    protected transient List<int[]> assignedTiles;
 
     @Override
     public AgentType getType() {
@@ -39,32 +33,38 @@ public class DroneAgent extends BaseFarmingAgent {
     protected void setup() {
 
         Object[] args = getArguments();
-        if (args == null || args.length < 2) 
+        if (args == null || args.length < 1) 
             throw new IllegalArgumentException("setup: not enough arguments");
         
         Environment environment = (Environment) args[0];
-        int id = (int) args[1];
 
         Integer x = null;
         Integer y = null;
 
-        if (args.length >= 4) {
-            x = (int) args[2];
-            y = (int) args[3];
+        if (args.length >= 3) {
+            x = (int) args[1];
+            y = (int) args[2];
         }
 
         situate(environment, x, y);
 
-        this.environment = environment;
+        this.environment = environment; // From now on it's just an "ObservableEnvironment" -> a.k.a. we're almost done cheating
 
-        if(id == 0) {
-            addBehaviour(new MasterDroneInitBehavior());
-        } else {
-            //addBehaviour(new InitBehaviour());
-        }
-        //addBehaviour(new ExploringBehaviour(this, (long) (1000 / settings.droneSpeed())));
+        registerToYellowPages();
+
+        addBehaviour(new InitBehaviour());
+        
     }
 
-    
+
+    public List<int[]> getAssignedTiles() {
+        return assignedTiles;
+    }
+    public void setAssignedTiles(List<int[]> assignedTiles) {
+        this.assignedTiles = assignedTiles;
+
+        String message = String.format("%s - Assigned Tiles: %s", getName(), assignedTiles.toString());
+        logger.info(message);
+    } 
     
 }

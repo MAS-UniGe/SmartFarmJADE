@@ -6,12 +6,23 @@ import jade.core.ProfileImpl;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
 
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+
 import com.sdai.smartfarm.agents.DroneAgent;
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.environment.EnvironmentController;
 import com.sdai.smartfarm.settings.SimulationSettings;
 
 public class Main {
+
+    public static final Handler HANDLER = new ConsoleHandler();
+
+    static {
+        HANDLER.setLevel(Level.INFO);
+    }
+
     
     public static void main(String[] args) {
 
@@ -34,11 +45,10 @@ public class Main {
 
             for(int i = 0; i < simulationSettings.dronesNumber(); i++) {
 
-                int id = DroneAgent.getInstanceNumber();
                 AgentController agent = mainContainer.createNewAgent(
-                    "Drone-" + id,
+                    "Drone-" + DroneAgent.getInstanceNumber(),
                     DroneAgent.class.getName(),
-                    new Object[] {environment, id} 
+                    new Object[] {environment} 
                 );
                 agent.start();
             }

@@ -1,9 +1,9 @@
-package com.sdai.smartfarm.behaviors;
+package com.sdai.smartfarm.behaviours;
 
 import java.util.Random;
 
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.agents.FarmingAgent;
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.ObservableEnvironment;
 import com.sdai.smartfarm.environment.Observation;
 import com.sdai.smartfarm.environment.crops.Crops;
@@ -32,7 +32,7 @@ public class ExploringBehaviour extends TickerBehaviour {
     @Override
     protected void onTick() {
         
-        FarmingAgent agent = (FarmingAgent) myAgent;
+        BaseFarmingAgent agent = (BaseFarmingAgent) myAgent;
 
         int x = agent.getX();
         int y = agent.getY();

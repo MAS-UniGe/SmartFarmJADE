@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.sdai.smartfarm.agents.AgentType;
-import com.sdai.smartfarm.agents.FarmingAgent;
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.crops.CropsNeeds;
 import com.sdai.smartfarm.environment.crops.CropsState;
 import com.sdai.smartfarm.environment.tiles.FarmLandTile;
@@ -28,7 +28,7 @@ public class Environment implements ObservableEnvironment {
 
     // I'm using a 2d array and not an hash table: heavier on the mmeory
     // but faster check on the surroundings
-    protected final FarmingAgent[] agentsMap;
+    protected final BaseFarmingAgent[] agentsMap;
 
     public Environment(int width, int height) {
         this.width = width;
@@ -36,7 +36,7 @@ public class Environment implements ObservableEnvironment {
 
         this.map = new Tile[width * height];
 
-        this.agentsMap = new FarmingAgent[width * height];
+        this.agentsMap = new BaseFarmingAgent[width * height];
 
         initMap();
     }
@@ -58,12 +58,12 @@ public class Environment implements ObservableEnvironment {
         return map[y * width + x];
     }
 
-    public FarmingAgent getAgentAt(int x, int y) {
+    public BaseFarmingAgent getAgentAt(int x, int y) {
         if (y < 0 || x < 0 || y >= height || x >= width) return null;
         return agentsMap[y * width + x];
     }
 
-    public boolean trySpawn(FarmingAgent agent, Integer x, Integer y) {
+    public boolean trySpawn(BaseFarmingAgent agent, Integer x, Integer y) {
         if (x == null || y == null || y < 0 || x < 0 || y >= height || x >= width) 
             return false;
 
@@ -133,7 +133,7 @@ public class Environment implements ObservableEnvironment {
                 Tile tile = getTile(x, y);
                 if(tile != null) observedTiles[y * width + x] = tile.getType();
     
-                FarmingAgent agent = getAgentAt(x, y);
+                BaseFarmingAgent agent = getAgentAt(x, y);
                 if(agent != null) observedAgents[y * width + x] = agent.getType();
 
             }

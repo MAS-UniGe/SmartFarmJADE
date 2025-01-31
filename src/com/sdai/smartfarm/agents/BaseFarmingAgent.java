@@ -1,48 +1,67 @@
 package com.sdai.smartfarm.agents;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.environment.ObservableEnvironment;
 
-import elki.data.IntegerVector;
+import jade.core.AID;
 import jade.core.Agent;
+import jade.domain.DFService;
+import jade.domain.FIPAException;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
 
-public abstract class BaseFarmingAgent extends Agent implements FarmingAgent {
+public abstract class BaseFarmingAgent extends Agent {
     
     protected int x;
     protected int y;
     protected transient ObservableEnvironment environment;
 
     protected int[] fieldsMap;
-    protected transient List<List<IntegerVector>> fields;
+    protected transient List<List<int[]>> fields;
 
-    @Override
+    protected transient Map<AgentType, AID[]> knownAgents = new EnumMap<>(AgentType.class);
+
+    public abstract AgentType getType();
+
+    protected void registerToYellowPages() {
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType(getType().toString());
+        sd.setName("Smart-Farm-Simulation");
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        }
+        catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+    }
+
     public int getX() {
         return x;
     }
 
-    @Override
     public void setX(int x) {
         this.x = x;
     }
 
-    @Override
     public int getY() {
         return y;
     }
 
-    @Override
     public void setY(int y) {
         this.y = y;
     }
 
-    @Override
     public ObservableEnvironment getEnvironment() {
         return environment;
     }
 
-    @Override
     public void situate(Environment environment, Integer x, Integer y) {
         if(environment == null) 
             throw new IllegalArgumentException("situate: environment must be instantiated");
@@ -65,24 +84,26 @@ public abstract class BaseFarmingAgent extends Agent implements FarmingAgent {
 
     }
 
-    @Override
     public int[] getFieldsMap() {
         return fieldsMap;
     }
-
-    @Override
     public void setFieldsMap(int[] fieldsMap) {
         this.fieldsMap = fieldsMap;
     }
 
-    @Override
-    public List<List<IntegerVector>> getFields() {
+    public List<List<int[]>> getFields() {
         return fields;
     }
-
-    @Override
-    public void setFields(List<List<IntegerVector>> fields) {
+    public void setFields(List<List<int[]>> fields) {
         this.fields = fields;
     }
+
+    public AID[] getKnown(AgentType agentType) {
+        return knownAgents.get(agentType);
+    }
+    public void setKnown(AgentType agentType, AID[] aids) {
+        knownAgents.put(agentType, aids);
+    }
+
 
 }

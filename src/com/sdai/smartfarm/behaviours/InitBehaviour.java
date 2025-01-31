@@ -1,17 +1,18 @@
-package com.sdai.smartfarm.behaviors;
+package com.sdai.smartfarm.behaviours;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.logging.Logger;
 
-import com.sdai.smartfarm.agents.FarmingAgent;
+import com.sdai.smartfarm.agents.AgentType;
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.ObservableEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
 import com.sdai.smartfarm.settings.AgentsSettings;
 import com.sdai.smartfarm.settings.SimulationSettings;
 
-import elki.data.IntegerVector;
 import jade.core.behaviours.OneShotBehaviour;
 
 public class InitBehaviour extends OneShotBehaviour {
@@ -20,26 +21,38 @@ public class InitBehaviour extends OneShotBehaviour {
     protected int height;
 
     protected int[] fieldsMap;
-    protected transient List<List<IntegerVector>> fields;
+    protected transient List<List<int[]>> fields;
 
     protected static SimulationSettings simulationSettings = SimulationSettings.defaultSimulationSettings();
     protected static AgentsSettings agentsSettings =  AgentsSettings.defaultAgentsSettings();
 
+    private static final Logger logger = Logger.getLogger(InitBehaviour.class.getName());
+
     @Override
     public void action() {
 
-        FarmingAgent agent = (FarmingAgent) getAgent();
+        BaseFarmingAgent agent = (BaseFarmingAgent) getAgent();
 
         // We assume there has been some exploration beforehand and we completed a tile map of the static portion of the environment
         // Possible extension: Implement the initial exploration to build the map without "cheating"
         ObservableEnvironment environment = agent.getEnvironment();
         
-        width = simulationSettings.mapWidth();
-        height = simulationSettings.mapHeight();
+        width = environment.getWidth();
+        height = environment.getHeight();
 
         TileType[] observedMap = environment.getMap();
 
         splitIntoFields(observedMap);
+
+        // Save initialization result
+        agent.setFields(fields);
+        agent.setFieldsMap(fieldsMap);
+
+        logger.info(agent.getAID().getLocalName() + ": Finished Agent Initialization");
+
+        agent.addBehaviour(new AgentDiscoveryBehaviour(agent, agentsSettings.agentDiscoveryInterval()));
+        if (agent.getType() == AgentType.DRONE)
+            agent.addBehaviour(new DroneConsumerBehaviour());
 
     }
 
@@ -68,8 +81,8 @@ public class InitBehaviour extends OneShotBehaviour {
                     visit(map, x, y, curFieldId);
 
                     fields.get(curFieldId).sort(
-                        Comparator.comparingInt((IntegerVector v) -> v.intValue(1))
-                            .thenComparingInt(v -> v.intValue(0))
+                        Comparator.comparingInt((int[] v) -> v[1])
+                            .thenComparingInt(v -> v[0])
                     );
 
               
@@ -102,7 +115,7 @@ public class InitBehaviour extends OneShotBehaviour {
             return;
         
         fieldsMap[index] = curFieldId;
-        fields.get(curFieldId).add(new IntegerVector(new int[] {x, y}));
+        fields.get(curFieldId).add(new int[] {x, y});
 
         visit(map, x-1, y, curFieldId);
         visit(map, x+1, y, curFieldId);
@@ -113,28 +126,28 @@ public class InitBehaviour extends OneShotBehaviour {
 
     protected int splitFieldIntoSubFields(int curFieldId, int numSplits, int splitSize) {
 
-        List<IntegerVector> buffer = fields.remove(curFieldId);
+        List<int[]> buffer = fields.remove(curFieldId);
 
         int start = 0;
 
         for (int i = 0; i < numSplits; i++) {
             // we split horizontally: it will never be a perfect split but this is better for the tractors
-            int limitY = buffer.get(splitSize * (i + 1)).intValue(1);
+            int limitY = buffer.get(splitSize * (i + 1))[1];
 
-            int splitIndex = 0;
+            int splitIndex = start;
 
             // could be done more efficiently with alternated pop_first/push_back but I really do not trust Java's Arraylist implementation to be efficient
-            for(IntegerVector v : buffer.subList(start, buffer.size())) {
+            for(int[] v : buffer.subList(start, buffer.size())) {
 
-                fieldsMap[v.intValue(1) * width + v.intValue(0)] = curFieldId;
+                fieldsMap[v[1] * width + v[0]] = curFieldId;
 
-                if (v.intValue(1) == limitY)
+                if (v[1] == limitY)
                     break;
 
                 splitIndex++;
             }
 
-            List<IntegerVector> splitField = new ArrayList<>(
+            List<int[]> splitField = new ArrayList<>(
                 buffer.subList(start, splitIndex)
             );
 
@@ -144,9 +157,9 @@ public class InitBehaviour extends OneShotBehaviour {
             curFieldId++;
         }
 
-        for(IntegerVector v : buffer.subList(start, buffer.size())) {
+        for(int[] v : buffer.subList(start, buffer.size())) {
 
-            fieldsMap[v.intValue(1) * width + v.intValue(0)] = curFieldId;
+            fieldsMap[v[1] * width + v[0]] = curFieldId;
         }
 
         fields.add(new ArrayList<>(

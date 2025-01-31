@@ -13,8 +13,8 @@ public record WindowSettings(
             500,
             500,
             32,
-            40, 
-            120
+            10, //40, 
+            10 // 120
         );
     }
 

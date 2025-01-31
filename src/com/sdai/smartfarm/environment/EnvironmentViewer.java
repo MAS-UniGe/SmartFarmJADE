@@ -5,12 +5,17 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.sdai.smartfarm.agents.AgentType;
-import com.sdai.smartfarm.agents.FarmingAgent;
+import com.sdai.smartfarm.agents.DroneAgent;
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.settings.WindowSettings;
 
+import elki.data.IntegerVector;
+
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.List;
+import java.util.Random;
 import java.awt.Color;
 
 public class EnvironmentViewer extends JPanel {
@@ -24,12 +29,17 @@ public class EnvironmentViewer extends JPanel {
 
     private int tileSize;
 
+    // TODO: remove this it is here just for debug
+    Color[] coloredClusters;
+
     public EnvironmentViewer(Environment environment) {
         this.environment = environment;
 
         worldX = environment.getWidth() / 2.0f;
         worldY = environment.getHeight() / 2.0f;
         recomputeTileSize();
+
+        coloredClusters = new Color[environment.getWidth() * environment.getHeight()];
 
     }
 
@@ -64,6 +74,51 @@ public class EnvironmentViewer extends JPanel {
         int offsetX = (int) ((worldX - startX) * tileSize);
         int offsetY = (int) ((worldY - startY) * tileSize);
 
+        // DEBUG ONLY !!!
+        /* 
+        int[] fieldsMap = null;
+
+        List<List<IntegerVector>> clusters = null;
+        
+        for(int row = 0; row < gridHeight; row++) {
+            for(int col = 0; col < gridWidth; col++) {
+                FarmingAgent agent = environment.getAgentAt(startX + col, startY + row);
+
+                if (agent instanceof DroneAgent droneAgent) {
+
+                    int[] fmap = droneAgent.getFieldsMap();
+
+                    if (fmap != null) fieldsMap = fmap;
+
+                    List<List<IntegerVector>> cl = droneAgent.getClusters();
+
+                    if(cl != null) clusters = cl;
+                }
+            }
+        }
+
+        
+
+        if(clusters != null) {
+            for(List<IntegerVector> cluster : clusters) {
+                
+                Random rng = new Random();
+
+                Color color = new Color(rng.nextInt(25, 255), rng.nextInt(25, 255), rng.nextInt(25, 255));
+
+                for(IntegerVector point: cluster) {
+                    int index = point.intValue(1) * environment.getWidth() + point.intValue(0);
+                    if (coloredClusters[index] == null)
+                        coloredClusters[index] = color;
+                }
+
+
+                
+            }
+        } */
+        ////
+        
+
         for(int row = 0; row < gridHeight; row++) {
             for(int col = 0; col < gridWidth; col++) {
 
@@ -79,11 +134,26 @@ public class EnvironmentViewer extends JPanel {
                 g.setColor(tile.getColor());
                 g.fillRect(drawX, drawY, tileSize, tileSize);
 
+                // DEBUG ONLY
+                /*int y = startY + row;
+                int x = startX + col;
+                int index = y * environment.getWidth() + x;
+                
+                if(x >= 0 && x < environment.getWidth() && y >= 0 && y < environment.getHeight() && fieldsMap != null && fieldsMap[index] != -1) {
+                    g.setColor(new Color((fieldsMap[index] * 300) % 256, (fieldsMap[index] * 250) % 200, (fieldsMap[index] * 400) % 150));
+                    //if (coloredClusters[index] != null) {
+                        //g.setColor(coloredClusters[index]);
+                        g.fillRect(drawX, drawY, tileSize, tileSize);
+                    //}
+                    
+                }*/
+                //////
+
                 // Draw grid lines for better visualization (?) 
                 g.setColor(new Color(100, 100, 100, 40));
                 g.drawRect(drawX, drawY, tileSize, tileSize);
 
-                FarmingAgent agent = environment.getAgentAt(startX + col, startY + row);
+                BaseFarmingAgent agent = environment.getAgentAt(startX + col, startY + row);
 
                 // TODO: think about either switch or polymorphism
                 /*switch(agent) {
