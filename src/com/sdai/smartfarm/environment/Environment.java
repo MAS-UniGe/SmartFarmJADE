@@ -1,8 +1,6 @@
 package com.sdai.smartfarm.environment;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import com.sdai.smartfarm.agents.AgentType;
@@ -14,8 +12,6 @@ import com.sdai.smartfarm.environment.tiles.PathTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
 
-import elki.data.IntegerVector;
-import tutorial.clustering.SameSizeKMeans;
 
 public class Environment implements ObservableEnvironment {
 
@@ -61,6 +57,12 @@ public class Environment implements ObservableEnvironment {
     public BaseFarmingAgent getAgentAt(int x, int y) {
         if (y < 0 || x < 0 || y >= height || x >= width) return null;
         return agentsMap[y * width + x];
+    }
+
+    public TileType[] getMap() {
+
+        return Arrays.asList(map).stream().map(Tile::getType).toArray(TileType[]::new);
+
     }
 
     public boolean trySpawn(BaseFarmingAgent agent, Integer x, Integer y) {
@@ -114,13 +116,6 @@ public class Environment implements ObservableEnvironment {
         agentsMap[yFrom * width + xFrom] = null;
         return true;
     }
-
-    @Override
-    public TileType[] getMap() {
-
-        return Arrays.asList(map).stream().map(Tile::getType).toArray(TileType[]::new);
-
-    };
 
     @Override
     public Observation observe(int xCenter, int yCenter, int radius) {

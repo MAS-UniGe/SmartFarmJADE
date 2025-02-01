@@ -1,16 +1,18 @@
 package com.sdai.smartfarm.agents;
 
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.behaviours.InitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
+import com.sdai.smartfarm.utils.Position;
 
 public class DroneAgent extends BaseFarmingAgent {
 
     /* STATIC STUFF */
 
-    private static final Logger logger = Logger.getLogger(DroneAgent.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DroneAgent.class.getName());
 
     private static int instanceCounter = 0;
 
@@ -22,7 +24,9 @@ public class DroneAgent extends BaseFarmingAgent {
     
     
 
-    protected transient List<int[]> assignedTiles;
+    protected transient List<Position> assignedTiles;
+
+    protected transient List<Position> preferredPath;
 
     @Override
     public AgentType getType() {
@@ -48,8 +52,6 @@ public class DroneAgent extends BaseFarmingAgent {
 
         situate(environment, x, y);
 
-        this.environment = environment; // From now on it's just an "ObservableEnvironment" -> a.k.a. we're almost done cheating
-
         registerToYellowPages();
 
         addBehaviour(new InitBehaviour());
@@ -57,14 +59,17 @@ public class DroneAgent extends BaseFarmingAgent {
     }
 
 
-    public List<int[]> getAssignedTiles() {
+    public List<Position> getAssignedTiles() {
         return assignedTiles;
     }
-    public void setAssignedTiles(List<int[]> assignedTiles) {
+    public void setAssignedTiles(List<Position> assignedTiles) {
         this.assignedTiles = assignedTiles;
 
-        String message = String.format("%s - Assigned Tiles: %s", getName(), assignedTiles.toString());
-        logger.info(message);
+        if(LOGGER.isLoggable(Level.FINE)) {
+            String message = String.format("%s - Assigned Tiles: %s", getName(), assignedTiles);
+            LOGGER.fine(message);
+        }
+        
     } 
     
 }

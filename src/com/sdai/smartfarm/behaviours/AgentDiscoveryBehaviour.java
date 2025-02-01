@@ -2,6 +2,7 @@ package com.sdai.smartfarm.behaviours;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
+import com.sdai.smartfarm.utils.ArrayCheck;
 
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
@@ -10,9 +11,6 @@ import jade.domain.FIPAException;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.logging.Logger;
 
 public class AgentDiscoveryBehaviour extends TickerBehaviour {
@@ -21,20 +19,6 @@ public class AgentDiscoveryBehaviour extends TickerBehaviour {
 
     public AgentDiscoveryBehaviour(BaseFarmingAgent agent, long period) {
         super(agent, period);
-    }
-
-    protected boolean areEqual(AID[] alreadyKnown, AID[] justDiscovered) {
-        
-        Set<AID> knownAIDs = new HashSet<>();
-
-        Collections.addAll(knownAIDs, alreadyKnown);
-
-        for(AID discoveredAID: justDiscovered) {
-            if (!knownAIDs.contains(discoveredAID)) return false;
-            knownAIDs.remove(discoveredAID);
-        }
-
-        return knownAIDs.isEmpty();
     }
 
     @Override
@@ -67,7 +51,7 @@ public class AgentDiscoveryBehaviour extends TickerBehaviour {
 
                 agent.setKnown(agentType, discoveredAgents);
 
-                if (!areEqual(alreadyKnown, discoveredAgents)) {
+                if (!ArrayCheck.areEquivalent(alreadyKnown, discoveredAgents)) {
 
                     logger.info(agent.getAID().getLocalName() + ": discovered some new agents");
 

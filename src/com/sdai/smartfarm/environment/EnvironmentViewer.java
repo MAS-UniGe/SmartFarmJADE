@@ -4,18 +4,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.sdai.smartfarm.agents.AgentType;
-import com.sdai.smartfarm.agents.DroneAgent;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.settings.WindowSettings;
-
-import elki.data.IntegerVector;
-
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.util.List;
-import java.util.Random;
 import java.awt.Color;
 
 public class EnvironmentViewer extends JPanel {

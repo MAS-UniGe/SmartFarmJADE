@@ -9,6 +9,7 @@ import jade.wrapper.ContainerController;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.DroneAgent;
 import com.sdai.smartfarm.environment.Environment;
@@ -21,6 +22,20 @@ public class Main {
 
     static {
         HANDLER.setLevel(Level.INFO);
+        restoreLogging();
+    }
+
+    // this is needed because of Elki :/
+    public static void restoreLogging() {
+
+        Logger rootLogger = Logger.getLogger("");
+        rootLogger.setLevel(Level.INFO);
+    
+        for (Handler h : rootLogger.getHandlers()) {
+            rootLogger.removeHandler(h);
+        }
+    
+        rootLogger.addHandler(HANDLER);
     }
 
     

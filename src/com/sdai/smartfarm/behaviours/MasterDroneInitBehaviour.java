@@ -10,6 +10,7 @@ import com.sdai.smartfarm.Main;
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.DroneAgent;
 import com.sdai.smartfarm.settings.SimulationSettings;
+import com.sdai.smartfarm.utils.Position;
 
 import elki.data.Cluster;
 import elki.data.Clustering;
@@ -41,20 +42,16 @@ public class MasterDroneInitBehaviour extends OneShotBehaviour {
 
     private static final Logger LOGGER = Logger.getLogger(MasterDroneInitBehaviour.class.getName());
 
-    static {
-        LOGGER.addHandler(Main.HANDLER);
-    }
-
     @Override
     public void action() {
 
-        LOGGER.info("The Drone Master is deciding the Tiles assignment");
+        LOGGER.info("The Master Drone is deciding the Tiles assignment");
 
         DroneAgent agent = (DroneAgent) getAgent(); // Only a DroneAgent can have the MasterDroneInitBehaviour
 
         AID[] receivers = agent.getKnown(AgentType.DRONE);
 
-        List<List<int[]>> clusters = clusterize(agent.getFields(), receivers.length);
+        List<List<Position>> clusters = clusterize(agent.getFields(), receivers.length);
 
         try {
             for(int i = 0; i < receivers.length; i++) {
@@ -65,22 +62,22 @@ public class MasterDroneInitBehaviour extends OneShotBehaviour {
                 msg.setContentObject((Serializable) clusters.get(i));
                 agent.send(msg);
             }
-            LOGGER.info("The Drone Master has sent the Tiles assignment");
-            LOGGER.warning("The Drone Master has sent the Tiles assignment");
 
         } catch(IOException e) {
             LOGGER.severe("cluster was not serializable...");
             throw new IllegalStateException();
         }
+
+        LOGGER.info("The Master Drone has sent the Tiles assignment");
         
     }
 
-    protected List<List<int[]>> clusterize(List<List<int[]>> fields, int numClusters) {
+    protected List<List<Position>> clusterize(List<List<Position>> fields, int numClusters) {
 
         List<IntegerVector> farmPoints = new ArrayList<>();
 
-        for(List<int[]> field : fields) {
-            farmPoints.addAll(field.stream().map(IntegerVector::new).toList());
+        for(List<Position> field : fields) {
+            farmPoints.addAll(field.stream().map((Position p) -> new IntegerVector(new int[] {p.x(), p.y()})).toList());
         }
 
         DatabaseConnection fakeConnection2 = new IntegerVectorDatabaseConnection(farmPoints);
@@ -99,7 +96,7 @@ public class MasterDroneInitBehaviour extends OneShotBehaviour {
 
         Clustering<MeanModel> result = kmeans.run(relation);
 
-        List<List<int[]>> clusters = new ArrayList<>();
+        List<List<Position>> clusters = new ArrayList<>();
 
         int clusterId = 0;
 
@@ -108,19 +105,22 @@ public class MasterDroneInitBehaviour extends OneShotBehaviour {
 
             clusters.add(new ArrayList<>());
 
-            List<int[]> clusterAsList = clusters.get(clusterId);
+            List<Position> clusterAsList = clusters.get(clusterId);
 
             ids.forEach(id -> {
                 NumberVector vec = relation.get(id); 
                 int x = vec.intValue(0);
                 int y = vec.intValue(1);
-                clusterAsList.add(new int[] {x, y});
+                clusterAsList.add(new Position(x, y));
                  
             });
 
             clusterId++;
           
         }
+
+        // restore logging because Elki breaks it
+        Main.restoreLogging();
 
         return clusters;
 
