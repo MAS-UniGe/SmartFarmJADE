@@ -1,10 +1,12 @@
-package com.sdai.smartfarm.agents;
+package com.sdai.smartfarm.agents.drone;
 
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sdai.smartfarm.behaviours.InitBehaviour;
+import com.sdai.smartfarm.agents.AgentType;
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
+import com.sdai.smartfarm.agents.drone.behaviours.DroneInitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.utils.Position;
 
@@ -26,7 +28,7 @@ public class DroneAgent extends BaseFarmingAgent {
 
     protected transient List<Position> assignedTiles;
 
-    protected transient List<Position> preferredPath;
+    protected transient List<Position> pathPlan;
 
     @Override
     public AgentType getType() {
@@ -54,7 +56,7 @@ public class DroneAgent extends BaseFarmingAgent {
 
         registerToYellowPages();
 
-        addBehaviour(new InitBehaviour());
+        addBehaviour(new DroneInitBehaviour());
         
     }
 
@@ -71,5 +73,13 @@ public class DroneAgent extends BaseFarmingAgent {
         }
         
     } 
+
+    public List<Position> getPathPlan() {
+        return pathPlan;
+    }
+
+    public void setPathPlan(List<Position> pathPlan) {
+        this.pathPlan = pathPlan;
+    }
     
 }

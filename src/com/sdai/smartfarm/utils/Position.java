@@ -12,8 +12,11 @@ public record Position(
     private static final SimulationSettings settings = SimulationSettings.defaultSimulationSettings();
     
     public boolean isAdjacent(Position otherPos) {
-        return (x == otherPos.x && (y <= otherPos.y + 1 && y >= otherPos.y - 1)) 
-            || (y == otherPos.y && (x <= otherPos.x + 1 && x >= otherPos.x - 1));
+        return distance(otherPos) <= 1;
+    }
+
+    public int distance(Position otherPos) {
+        return Math.abs(x - otherPos.x()) + Math.abs(y - otherPos.y());
     }
 
     @Override

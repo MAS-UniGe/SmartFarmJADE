@@ -8,7 +8,7 @@ public record AgentsSettings(
 ) {
 
     public static AgentsSettings defaultAgentsSettings() {
-        return new AgentsSettings(3, 1.0, 15000, 50);
+        return new AgentsSettings(3, 50.0, 5000, 1000);
     }
     
 }

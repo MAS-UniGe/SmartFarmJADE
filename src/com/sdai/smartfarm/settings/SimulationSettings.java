@@ -13,10 +13,10 @@ public record SimulationSettings(
         return new SimulationSettings(
             100, 
             100,
-            20,
+            60,
             80,
             1.0f,
-            4
+            8
         );
     }
     

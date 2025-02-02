@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.behaviours;
+package com.sdai.smartfarm.agents.drone.behaviours;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.Main;
 import com.sdai.smartfarm.agents.AgentType;
-import com.sdai.smartfarm.agents.DroneAgent;
+import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.settings.SimulationSettings;
 import com.sdai.smartfarm.utils.Position;
 
@@ -36,11 +36,11 @@ import jade.lang.acl.ACLMessage;
 
 import tutorial.clustering.SameSizeKMeans;
 
-public class MasterDroneInitBehaviour extends OneShotBehaviour {
+public class LoadBalancerBehaviour extends OneShotBehaviour {
 
     protected static SimulationSettings simulationSettings = SimulationSettings.defaultSimulationSettings();
 
-    private static final Logger LOGGER = Logger.getLogger(MasterDroneInitBehaviour.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoadBalancerBehaviour.class.getName());
 
     @Override
     public void action() {

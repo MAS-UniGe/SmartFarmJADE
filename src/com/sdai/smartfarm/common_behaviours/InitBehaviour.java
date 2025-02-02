@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.behaviours;
+package com.sdai.smartfarm.common_behaviours;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
+import com.sdai.smartfarm.agents.drone.behaviours.PathPlannerBehaviour;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
 import com.sdai.smartfarm.settings.AgentsSettings;
@@ -28,6 +29,11 @@ public class InitBehaviour extends OneShotBehaviour {
     protected static AgentsSettings agentsSettings =  AgentsSettings.defaultAgentsSettings();
 
     private static final Logger LOGGER = Logger.getLogger(InitBehaviour.class.getName());
+
+    protected void addBehaviours(BaseFarmingAgent agent) {
+
+        agent.addBehaviour(new AgentDiscoveryBehaviour(agent, agentsSettings.agentDiscoveryInterval()));
+    }
 
     @Override
     public void action() {
@@ -57,10 +63,7 @@ public class InitBehaviour extends OneShotBehaviour {
             LOGGER.severe(e.getLocalizedMessage());
         }
         
-
-        agent.addBehaviour(new AgentDiscoveryBehaviour(agent, agentsSettings.agentDiscoveryInterval()));
-        if (agent.getType() == AgentType.DRONE)
-            agent.addBehaviour(new DroneConsumerBehaviour());
+        addBehaviours(agent);
 
     }
 

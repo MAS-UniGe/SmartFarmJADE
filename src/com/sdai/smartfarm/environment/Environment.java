@@ -1,5 +1,6 @@
 package com.sdai.smartfarm.environment;
 
+import java.awt.Color;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -9,6 +10,7 @@ import com.sdai.smartfarm.environment.crops.CropsNeeds;
 import com.sdai.smartfarm.environment.crops.CropsState;
 import com.sdai.smartfarm.environment.tiles.FarmLandTile;
 import com.sdai.smartfarm.environment.tiles.PathTile;
+import com.sdai.smartfarm.environment.tiles.TallObstacleTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
 
@@ -87,6 +89,11 @@ public class Environment implements ObservableEnvironment {
 
         for(int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                if(rng.nextFloat() < 0.003) {
+                    map[y * width + x] = new TallObstacleTile();
+                    continue;
+                }
+
                 if (y % 20 == 0 || y == height - 1 || x % 40 == 0 || x == width - 1)
                     map[y * width + x] = new PathTile();
                 else {
@@ -106,11 +113,20 @@ public class Environment implements ObservableEnvironment {
         }
     }
 
+    // needs to be synchronized to avoid race conditions between agents
     @Override
-    public boolean moveAgent(int xFrom, int yFrom, int xTo, int yTo) {
+    public synchronized boolean moveAgent(int xFrom, int yFrom, int xTo, int yTo) {
         if (yFrom < 0 || yFrom >= height || yTo < 0 || yTo >= height) return false;
         if (xFrom < 0 || xFrom >= width  || xTo < 0 || xTo >= width ) return false;
         if (getAgentAt(xFrom, yFrom) == null || getAgentAt(xTo, yTo) != null) return false;
+
+        Tile tile = getTile(xTo, yTo);
+        if (tile instanceof FarmLandTile fTile) {
+            fTile.setColor(new Color(
+                Math.max(fTile.getColor().getRed() - 50, 0), 
+                Math.max(fTile.getColor().getGreen() - 50, 0), 
+                Math.min(fTile.getColor().getBlue() + 75, 255)));
+        }
 
         agentsMap[yTo * width + xTo] = agentsMap[yFrom * width + xFrom];
         agentsMap[yFrom * width + xFrom] = null;
@@ -119,17 +135,19 @@ public class Environment implements ObservableEnvironment {
 
     @Override
     public Observation observe(int xCenter, int yCenter, int radius) {
-        TileType[] observedTiles = new TileType[(radius + 1) * (radius + 1)];
-        AgentType[] observedAgents = new AgentType[(radius + 1) * (radius + 1)];
+        int viewSize = 2 * radius + 1;
 
-        for(int y = yCenter - radius; y < yCenter + radius + 1; y++) {
-            for(int x = xCenter - radius; x < xCenter + radius + 1; x++) {
+        TileType[] observedTiles = new TileType[viewSize * viewSize];
+        AgentType[] observedAgents = new AgentType[viewSize * viewSize];
 
-                Tile tile = getTile(x, y);
-                if(tile != null) observedTiles[y * width + x] = tile.getType();
+        for(int y = 0; y < viewSize; y++) {
+            for(int x = 0; x < viewSize; x++) {
+
+                Tile tile = getTile(xCenter + x - radius, yCenter + y - radius);
+                if(tile != null) observedTiles[y * viewSize + x] = tile.getType();
     
-                BaseFarmingAgent agent = getAgentAt(x, y);
-                if(agent != null) observedAgents[y * width + x] = agent.getType();
+                BaseFarmingAgent agent = getAgentAt(xCenter + x - radius, yCenter + y - radius);
+                if(agent != null) observedAgents[y * viewSize + x] = agent.getType();
 
             }
         }

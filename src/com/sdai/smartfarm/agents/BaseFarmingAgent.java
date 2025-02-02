@@ -18,8 +18,7 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 
 public abstract class BaseFarmingAgent extends Agent {
     
-    protected int x;
-    protected int y;
+    protected Position position;
     protected transient ObservableEnvironment environment;
     protected transient ObservedEnvironment observedEnvironment;
 
@@ -48,20 +47,12 @@ public abstract class BaseFarmingAgent extends Agent {
         }
     }
 
-    public int getX() {
-        return x;
+    public Position getPosition() {
+        return position;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setY(int y) {
-        this.y = y;
+    public void setPosition(Position position) {
+        this.position = position;
     }
 
     public ObservableEnvironment getEnvironment() {
@@ -95,8 +86,7 @@ public abstract class BaseFarmingAgent extends Agent {
             
         }
 
-        this.x = x.intValue(); // cannot be null
-        this.y = y.intValue();     
+        this.position = new Position(x.intValue(), y.intValue());
 
     }
 

@@ -11,7 +11,7 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sdai.smartfarm.agents.DroneAgent;
+import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.environment.EnvironmentController;
 import com.sdai.smartfarm.settings.SimulationSettings;

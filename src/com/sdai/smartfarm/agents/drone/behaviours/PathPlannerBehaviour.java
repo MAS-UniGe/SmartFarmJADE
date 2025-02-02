@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.behaviours;
+package com.sdai.smartfarm.agents.drone.behaviours;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -7,7 +7,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
-import com.sdai.smartfarm.agents.DroneAgent;
+import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.utils.AStar;
 import com.sdai.smartfarm.utils.Position;
 
@@ -16,9 +16,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
-public class DroneConsumerBehaviour extends CyclicBehaviour {
+public class PathPlannerBehaviour extends CyclicBehaviour {
 
-    private static final Logger LOGGER = Logger.getLogger(DroneConsumerBehaviour.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PathPlannerBehaviour.class.getName());
 
     @Override
     @SuppressWarnings("unchecked")
@@ -44,7 +44,8 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
             List<Position> assignedRegion = (List<Position>) msg.getContentObject();
             agent.setAssignedTiles(assignedRegion);
 
-            resetPreferredPath(agent);
+            planPath(agent);
+            LOGGER.info(agent.getLocalName() + ": determined a path plan");
 
         } catch(UnreadableException | ClassCastException e) {
             LOGGER.warning("got an unreadable assignment, ignoring...");
@@ -53,7 +54,8 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
 
     }
 
-    private void resetPreferredPath(DroneAgent agent) {
+    //pun intended
+    private void planPath(DroneAgent agent) {
 
         List<Position> assignedTiles = agent.getAssignedTiles();
         
@@ -63,12 +65,14 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
 
         // ALGORITHM:
         // split assignedTiles into fields. For each field, sort tiles by Y and then X, with sorting directions alternated
-        // (for "even index" fields, lower Y are prioritized, for "odd" fields, higher Y are prioritized)
+        // (for "even entry" fields, lower Y are prioritized, for "odd" fields, higher Y are prioritized)
         // (for even Y, lower X are prioritized, for odd Y, higher X are prioritized)
         // start from first tile of first field
         // while next tile is adjacent to current tile: go there and append movement to preferredPath
-        // else compute best path from current tile to next tile with Fast March and then append movement to preferredPath
-        // when all tiles in a field have been visited, use Fast March to move to next field's "first" tile
+        // else compute best path from current tile to next tile with A* and then append movement to preferredPath
+        // when all tiles in a field have been visited, use A* to move to next field's "first" tile
+        // repeat until all tiles have been visited
+        // use A* to compute path to go back to first tile (this last step is the most inefficient part, but it is relatively a small price to pay)
 
         SortedMap<Integer, List<Position>> fieldsAssignment = new TreeMap<>(); // needs to be sorted so "close" fields are next to each other
 
@@ -91,7 +95,7 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
                 Comparator.comparingInt((Position p) -> (goingDownAux)? p.y() : -(p.y()))
             .thenComparingInt(p -> (p.y() % 2 == 0) ? p.x() : -p.x()));
 
-            goingDown = !goingDown;
+            goingDown = !goingDown; // alternate going down and going up
 
             // attach first element to last of preferred path
             if(!preferredPath.isEmpty()) {
@@ -118,7 +122,7 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
                             curPos,
                             nextPos,
                             agent.getObservedEnvironment(),
-                            false
+                            true
                         )
                     );
                 }
@@ -128,15 +132,19 @@ public class DroneConsumerBehaviour extends CyclicBehaviour {
                 
         }
 
-        // Go back to the first square
+        // Go back to square one (0 actually)
         preferredPath.addAll(
             AStar.reachSingleDestination(
                 preferredPath.get(preferredPath.size() -1),
                 preferredPath.get(0),
                 agent.getObservedEnvironment(),
-                false
+                true
             )
         );
+
+        preferredPath.add(preferredPath.get(0));
+
+        agent.setPathPlan(preferredPath);
 
     }
     
