@@ -24,23 +24,16 @@ public class FarmLandTile implements Tile {
         return TileType.FARMLAND;
     }
 
-    private Color color = new Color(200, 200, 0);
-
     @Override
     public Color getColor() {
-        return color;
-        /*return new Color(
-            Math.min((int)(crops.checkGrowth() * 125), 255), 
-            Math.min((int)(crops.checkGrowth() * 125), 255),
-            (crops.checkState() == CropsState.UNWELL) ? 100 : 30
-        );*/
-
-
+        return (crops.checkState() == CropsState.DEAD || crops.checkState() == CropsState.DECAYING) ? new Color(100, 50, 20)
+        : (crops.checkState() == CropsState.UNWELL) ? new Color(170, 170, 60)
+        : new Color(200, 200, 30);
     }
 
-    public void setColor(Color color) {
+    /*public void setColor(Color color) {
         this.color = color;
-    }
+    }*/
 
     @Override
     public void update() {

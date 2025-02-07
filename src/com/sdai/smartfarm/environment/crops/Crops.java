@@ -70,21 +70,24 @@ public class Crops {
 
     public void update() {
 
+        if (state == CropsState.UNWELL && !needs.isThereAny()) // then it has been healed/supported/watered/whatever
+            state = CropsState.GROWING;
+
         switch (state) {
             case GROWING:
                 growth += rng.nextDouble(0.5, 1.0) * settings.saneGrowthRate();
-                if (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance())
-                    state = CropsState.DECAYING;
-                else 
+                //if (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance())
+                    //state = CropsState.DECAYING;
+                //else 
                     createNeeds();
                 break;
 
             case UNWELL:
                 growth += rng.nextDouble(0.5, 1.0) * settings.unwellGrowthRate();
                 wellBeing -= settings.wellBeingDecay();
-                if (wellBeing < settings.wellBeingThreshold() || (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance()))
+                /*if (wellBeing < settings.wellBeingThreshold() || (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance()))
                     state = CropsState.DECAYING;
-                else 
+                else */
                     createNeeds();
                 break;
 

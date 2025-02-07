@@ -13,7 +13,7 @@ public class DroneInitBehaviour extends InitBehaviour {
     protected void addBehaviours(BaseFarmingAgent agent) {
 
         super.addBehaviours(agent);
-        agent.addBehaviour(new PathPlannerBehaviour());
+        agent.addBehaviour(new PathPlanningBehaviour());
         agent.addBehaviour(new CheckOnCropsBehaviour((DroneAgent) agent, (long) (1000.0 / settings.droneSpeed())));
 
     } 

@@ -3,6 +3,7 @@ package com.sdai.smartfarm.environment;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
@@ -13,9 +14,12 @@ import com.sdai.smartfarm.environment.tiles.PathTile;
 import com.sdai.smartfarm.environment.tiles.TallObstacleTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
+import com.sdai.smartfarm.utils.Position;
 
 
 public class Environment implements ObservableEnvironment {
+
+    private static final Logger LOGGER = Logger.getLogger(Environment.class.getName());
 
     protected final Random rng = new Random();
 
@@ -89,12 +93,12 @@ public class Environment implements ObservableEnvironment {
 
         for(int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if(rng.nextFloat() < 0.003) {
+                /*if(rng.nextFloat() < 0.003) {
                     map[y * width + x] = new TallObstacleTile();
                     continue;
-                }
+                }*/
 
-                if (y % 20 == 0 || y == height - 1 || x % 40 == 0 || x == width - 1)
+                if (y % 20 < 2 || y >= height - 2 || x % 40 < 2 || x >= width - 2)
                     map[y * width + x] = new PathTile();
                 else {
                     map[y * width + x] = new FarmLandTile(rng);
@@ -115,21 +119,24 @@ public class Environment implements ObservableEnvironment {
 
     // needs to be synchronized to avoid race conditions between agents
     @Override
-    public synchronized boolean moveAgent(int xFrom, int yFrom, int xTo, int yTo) {
-        if (yFrom < 0 || yFrom >= height || yTo < 0 || yTo >= height) return false;
-        if (xFrom < 0 || xFrom >= width  || xTo < 0 || xTo >= width ) return false;
-        if (getAgentAt(xFrom, yFrom) == null || getAgentAt(xTo, yTo) != null) return false;
-
-        Tile tile = getTile(xTo, yTo);
-        if (tile instanceof FarmLandTile fTile) {
-            fTile.setColor(new Color(
-                Math.max(fTile.getColor().getRed() - 50, 0), 
-                Math.max(fTile.getColor().getGreen() - 50, 0), 
-                Math.min(fTile.getColor().getBlue() + 75, 255)));
+    public synchronized boolean moveAgent(BaseFarmingAgent agent, Position newPosition) {
+        if(newPosition.x() < 0 || newPosition.x() >= width || newPosition.y() < 0 || newPosition.y() >= height) {
+            LOGGER.severe("Agent " + agent.getLocalName() + " is trying to move out of bounds!");
+            return false;
+        }
+        if(! newPosition.isAdjacent(agent.getPosition())) {
+            LOGGER.severe("Agent " + agent.getLocalName() + " is trying to move too far away!");
+            return false;
         }
 
-        agentsMap[yTo * width + xTo] = agentsMap[yFrom * width + xFrom];
-        agentsMap[yFrom * width + xFrom] = null;
+        BaseFarmingAgent agentAtNewPosition = getAgentAt(newPosition.x(), newPosition.y());
+        if (agentAtNewPosition != null && agentAtNewPosition != agent) {
+            LOGGER.severe("Agent " + agent.getLocalName() + " is being blocked by " + agentAtNewPosition.getLocalName() + "!");
+            return false;
+        }
+
+        agentsMap[agent.getPosition().y() * width + agent.getPosition().x()] = null;
+        agentsMap[newPosition.y() * width + newPosition.x()] = agent;
         return true;
     }
 
@@ -162,6 +169,24 @@ public class Environment implements ObservableEnvironment {
         }
 
         return new Observation(observedTiles, observedAgents, cropsState, cropsNeeds);
+    }
+
+    public void removeWeeds(int x, int y) {
+        Tile tile = getTile(x, y);
+
+        if (tile instanceof FarmLandTile farmlandTile && farmlandTile.getCrops().getNeeds().getWeedRemoval()) {
+                farmlandTile.getCrops().getNeeds().setWeedRemoval(false);
+        }
+        
+    }
+
+    public void water(int x, int y) {
+        Tile tile = getTile(x, y);
+
+        if (tile instanceof FarmLandTile farmlandTile && farmlandTile.getCrops().getNeeds().getWatering()) {
+                farmlandTile.getCrops().getNeeds().setWatering(false);
+        }
+        
     }
     
 }

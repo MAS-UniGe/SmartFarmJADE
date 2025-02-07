@@ -2,7 +2,7 @@ package com.sdai.smartfarm.common_behaviours;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.agents.drone.behaviours.LoadBalancerBehaviour;
+import com.sdai.smartfarm.agents.drone.behaviours.LoadBalancingBehaviour;
 import com.sdai.smartfarm.utils.ArrayCheck;
 
 import jade.core.AID;
@@ -58,7 +58,7 @@ public class AgentDiscoveryBehaviour extends TickerBehaviour {
 
                     if (agentType == AgentType.DRONE && agent.getAID().getLocalName().equals("Drone-0")) { 
                         // TODO: This is not fault tolerant (in case Drone-0 breaks) -> could be improved with a consensus algo to decide Master Drone
-                        agent.addBehaviour(new LoadBalancerBehaviour());
+                        agent.addBehaviour(new LoadBalancingBehaviour());
                     }
 
                 }

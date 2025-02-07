@@ -6,10 +6,13 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.logging.Logger;
 
+import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.drone.DroneAgent;
+import com.sdai.smartfarm.environment.Observation;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
+import com.sdai.smartfarm.settings.AgentsSettings;
 import com.sdai.smartfarm.utils.AStar;
 import com.sdai.smartfarm.utils.Position;
 
@@ -18,6 +21,8 @@ import jade.core.behaviours.TickerBehaviour;
 public class FollowPathBehaviour extends TickerBehaviour {
 
     private static final Logger LOGGER = Logger.getLogger(FollowPathBehaviour.class.getName());
+
+    protected transient AgentsSettings settings = AgentsSettings.defaultAgentsSettings();
 
     protected final LinkedList<Position> path;
 
@@ -37,9 +42,47 @@ public class FollowPathBehaviour extends TickerBehaviour {
         this.pathIterator = this.path.listIterator();
         
     }
+    
+    protected Observation observeAndUpdate() {
+
+        BaseFarmingAgent agent = (BaseFarmingAgent) getAgent();
+
+        Position currentPosition = agent.getPosition();
+
+        Observation observation = agent.getEnvironment().observe(currentPosition.x(), currentPosition.y(), settings.viewRange());
+
+        ObservedEnvironment observedEnvironment = agent.getObservedEnvironment();
+
+        int viewSize = 2 * settings.viewRange() + 1;
+
+        for (int y = 0; y < viewSize; y++) {
+            for (int x = 0; x < viewSize; x++) {
+
+                TileType observedTile = observation.tiles()[y * viewSize + x];
+                AgentType observedAgent = observation.agents()[y * viewSize + x];
+
+                int mapY = currentPosition.y() + y - settings.viewRange();
+                int mapX = currentPosition.x() + x - settings.viewRange();
+
+                if (observedTile != null) {
+                    observedEnvironment.map()[mapY * observedEnvironment.width() + mapX] = observedTile;
+                }
+
+                if (observedAgent != null && (mapX != currentPosition.x() || mapY != currentPosition.y())) {
+                    // Yes, we consider other agents obstacles
+                    observedEnvironment.map()[mapY * observedEnvironment.width() + mapX] = TileType.TALL_OBSTACLE;
+                }
+                
+            }
+        }
+
+        return observation;
+    }
 
     @Override
     protected void onTick() {
+
+        observeAndUpdate();
         
         if(!pathIterator.hasNext()) {
             stop();
@@ -80,12 +123,10 @@ public class FollowPathBehaviour extends TickerBehaviour {
                 canFly
             );
 
-            if (pathToAvoidObstacle == null) { // then path is impossible
-                // TODO: find a recovery plan for this thing
-                throw new IllegalStateException("need a recovery plan for when path is impossible");
+            if (pathToAvoidObstacle == null) { // then path is impossible: this will trigger a failure notification
+                stop();
+                return;
             }
-
-            pathToAvoidObstacle.add(nextPosition); // gotta re-add it at the end
 
             //Sadly ListIterator does not have an addAll() method
             for(Position newPathPosition : pathToAvoidObstacle) {
@@ -96,7 +137,6 @@ public class FollowPathBehaviour extends TickerBehaviour {
             }
 
             nextPosition = pathIterator.next();
-
         }
 
         if(!currentPosition.isAdjacent(nextPosition)) 
@@ -104,7 +144,7 @@ public class FollowPathBehaviour extends TickerBehaviour {
             
         if(currentPosition != nextPosition) {
             
-            boolean success = agent.getEnvironment().moveAgent(currentPosition.x(), currentPosition.y(), nextPosition.x(), nextPosition.y());
+            boolean success = agent.getEnvironment().moveAgent(agent, nextPosition);
 
             if(success) {
                 agent.setPosition(nextPosition);

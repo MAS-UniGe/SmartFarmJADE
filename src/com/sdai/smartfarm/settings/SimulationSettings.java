@@ -6,7 +6,8 @@ public record SimulationSettings(
     int targetFPS,
     int targetUPS,
     float mouseSensitivity,
-    int dronesNumber
+    int dronesNumber,
+    int robotsNumber
 ) {
 
     public static SimulationSettings defaultSimulationSettings() {
@@ -16,7 +17,8 @@ public record SimulationSettings(
             60,
             80,
             1.0f,
-            8
+            6,
+            4
         );
     }
     

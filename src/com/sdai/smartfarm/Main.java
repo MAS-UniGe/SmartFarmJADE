@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.drone.DroneAgent;
+import com.sdai.smartfarm.agents.robot.RobotAgent;
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.environment.EnvironmentController;
 import com.sdai.smartfarm.settings.SimulationSettings;
@@ -63,6 +64,16 @@ public class Main {
                 AgentController agent = mainContainer.createNewAgent(
                     "Drone-" + DroneAgent.getInstanceNumber(),
                     DroneAgent.class.getName(),
+                    new Object[] {environment} 
+                );
+                agent.start();
+            }
+
+            for(int i = 0; i < simulationSettings.robotsNumber(); i++) {
+
+                AgentController agent = mainContainer.createNewAgent(
+                    "Robot-" + RobotAgent.getInstanceNumber(),
+                    RobotAgent.class.getName(),
                     new Object[] {environment} 
                 );
                 agent.start();

@@ -1,9 +1,16 @@
 package com.sdai.smartfarm.environment;
 
+import com.sdai.smartfarm.agents.BaseFarmingAgent;
+import com.sdai.smartfarm.utils.Position;
+
 public interface ObservableEnvironment {
 
-    public Observation observe(int xCenter, int yCenter, int radius);
+    Observation observe(int xCenter, int yCenter, int radius);
 
-    public boolean moveAgent(int xFrom, int yFrom, int xTo, int yTo);
+    boolean moveAgent(BaseFarmingAgent agent, Position newPosition);
+
+    void removeWeeds(int x, int y);
+
+    void water(int x, int y);
     
 }

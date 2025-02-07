@@ -15,7 +15,7 @@ public class AStar {
     private AStar() {}
 
     // returns null on impossible path
-    // extremes (start & dest) are omitted
+    // start is omitted
     public static List<Position> reachSingleDestination(
         Position startPosition,
         Position destPosition,
@@ -48,6 +48,7 @@ public class AStar {
                 // then we've found the path
                 LinkedList<Position> path = new LinkedList<>();
                 
+                path.addFirst(destPosition);
                 decoratedPosition = decoratedPosition.parent();
                 while (decoratedPosition.parent() != null) {
                     path.addFirst(decoratedPosition.position());

@@ -16,9 +16,9 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
 
-public class PathPlannerBehaviour extends CyclicBehaviour {
+public class PathPlanningBehaviour extends CyclicBehaviour {
 
-    private static final Logger LOGGER = Logger.getLogger(PathPlannerBehaviour.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(PathPlanningBehaviour.class.getName());
 
     @Override
     @SuppressWarnings("unchecked")
@@ -28,10 +28,10 @@ public class PathPlannerBehaviour extends CyclicBehaviour {
 
         MessageTemplate mt = MessageTemplate.and(
             MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-            MessageTemplate.MatchOntology("Region-Assignment")
+            MessageTemplate.MatchConversationId("Region-Assignment")
         );
         
-        ACLMessage msg = myAgent.receive(mt);
+        ACLMessage msg = agent.receive(mt);
 
         if (msg == null) {
             block();
@@ -90,15 +90,18 @@ public class PathPlannerBehaviour extends CyclicBehaviour {
         for(List<Position> positions: fieldsAssignment.values()) {
 
             // Sort points inside the same field
-            boolean goingDownAux = goingDown;
+            final boolean goingDownAux = goingDown;
             positions.sort(
                 Comparator.comparingInt((Position p) -> (goingDownAux)? p.y() : -(p.y()))
             .thenComparingInt(p -> (p.y() % 2 == 0) ? p.x() : -p.x()));
 
             goingDown = !goingDown; // alternate going down and going up
 
-            // attach first element to last of preferred path
-            if(!preferredPath.isEmpty()) {
+            if(preferredPath.isEmpty()) {
+                preferredPath.add(positions.get(0));
+                
+            } else {
+                // attach first element to last of preferred path
                 preferredPath.addAll(
                     AStar.reachSingleDestination(
                         preferredPath.get(preferredPath.size() - 1), 
@@ -114,9 +117,9 @@ public class PathPlannerBehaviour extends CyclicBehaviour {
                 Position curPos = positions.get(i);
                 Position nextPos = positions.get(i+1);
 
-                preferredPath.add(positions.get(i));
-
-                if (!curPos.isAdjacent(nextPos)) {
+                if (curPos.isAdjacent(nextPos)) {
+                    preferredPath.add(nextPos);
+                } else {
                     preferredPath.addAll(
                         AStar.reachSingleDestination(
                             curPos,
@@ -127,8 +130,6 @@ public class PathPlannerBehaviour extends CyclicBehaviour {
                     );
                 }
             }
-
-            preferredPath.add(positions.get(positions.size() - 1));
                 
         }
 
@@ -141,8 +142,6 @@ public class PathPlannerBehaviour extends CyclicBehaviour {
                 true
             )
         );
-
-        preferredPath.add(preferredPath.get(0));
 
         agent.setPathPlan(preferredPath);
 

@@ -15,14 +15,14 @@ public record CropsSettings(
     public static CropsSettings defaultCropsSettings() {
         return new CropsSettings(
             1.2,
-            0.0001, 
-            0.0001, 
+            1e-6, 
+            1e-6, 
             0.4, 
             0.0003, 
             0.002, 
             0.001,
-            0.001, 
-            0.001
+            2e-6, 
+            3e-7
         );
     }
 }

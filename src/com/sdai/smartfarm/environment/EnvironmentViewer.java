@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
+import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.settings.WindowSettings;
 import java.awt.Dimension;
@@ -160,8 +161,24 @@ public class EnvironmentViewer extends JPanel {
                 }*/
 
                 if (agent != null) {
-                    g.setColor(new Color(44, 44, 44));
+                    switch(agent.getType()) {
+                        
+                        case DRONE:
+                            g.setColor(new Color(44, 44, 44));
+                            break;
+                        case ROBOT:
+                            g.setColor(new Color(88, 88, 88));
+                            break;
+                        case TRACTOR:
+                            g.setColor(new Color(150, 150, 150));
+                            break;
+                    }
+                        
                     g.fillRect(drawX, drawY, tileSize, tileSize);
+
+                    g.setColor(Color.BLACK);
+
+                    g.drawRect(drawX, drawY, tileSize, tileSize);
                 }
 
             }

@@ -8,7 +8,7 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.agents.drone.behaviours.PathPlannerBehaviour;
+import com.sdai.smartfarm.agents.drone.behaviours.PathPlanningBehaviour;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
 import com.sdai.smartfarm.settings.AgentsSettings;

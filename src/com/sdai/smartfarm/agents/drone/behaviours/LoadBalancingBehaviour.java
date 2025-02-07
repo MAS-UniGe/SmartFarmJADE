@@ -33,14 +33,17 @@ import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 
-
 import tutorial.clustering.SameSizeKMeans;
 
-public class LoadBalancerBehaviour extends OneShotBehaviour {
+/**
+ *  This behaviour is going to be assigned to only one drone at a time and only when the drone configuration changes:
+ *  it is the behaviour that the Master Drone uses to balance the workload among its peers
+ */
+public class LoadBalancingBehaviour extends OneShotBehaviour {
 
     protected static SimulationSettings simulationSettings = SimulationSettings.defaultSimulationSettings();
 
-    private static final Logger LOGGER = Logger.getLogger(LoadBalancerBehaviour.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(LoadBalancingBehaviour.class.getName());
 
     @Override
     public void action() {
@@ -57,8 +60,7 @@ public class LoadBalancerBehaviour extends OneShotBehaviour {
             for(int i = 0; i < receivers.length; i++) {
                 ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
                 msg.addReceiver(receivers[i]);
-                msg.setLanguage("English");
-                msg.setOntology("Region-Assignment");
+                msg.setConversationId("Region-Assignment");
                 msg.setContentObject((Serializable) clusters.get(i));
                 agent.send(msg);
             }

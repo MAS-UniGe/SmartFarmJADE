@@ -1,6 +1,8 @@
 package com.sdai.smartfarm.environment.crops;
 
-public class CropsNeeds {
+import java.io.Serializable;
+
+public class CropsNeeds implements Serializable{
     
     private boolean watering = false;
     private boolean weedRemoval = false;
@@ -21,6 +23,16 @@ public class CropsNeeds {
 
     public boolean isThereAny() {
         return watering || weedRemoval;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof CropsNeeds needs && (watering == needs.getWatering()) && (weedRemoval == needs.getWeedRemoval()));
+    }
+
+    @Override
+    public int hashCode() {
+        return ((watering) ? 1 << 1 : 0) + ((weedRemoval) ? 1 : 0);
     }
 
 }
