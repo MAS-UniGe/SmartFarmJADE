@@ -8,8 +8,8 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.drone.DroneAgent;
-import com.sdai.smartfarm.utils.AStar;
-import com.sdai.smartfarm.utils.Position;
+import com.sdai.smartfarm.logic.AStar;
+import com.sdai.smartfarm.models.Position;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -107,7 +107,9 @@ public class PathPlanningBehaviour extends CyclicBehaviour {
                         preferredPath.get(preferredPath.size() - 1), 
                         positions.get(0),
                         agent.getObservedEnvironment(),
-                        true
+                        agent.getType(),
+                        agent.getFieldsMap(),
+                        null
                     )
                 );
             }
@@ -125,7 +127,9 @@ public class PathPlanningBehaviour extends CyclicBehaviour {
                             curPos,
                             nextPos,
                             agent.getObservedEnvironment(),
-                            true
+                            agent.getType(),
+                            agent.getFieldsMap(),
+                        null
                         )
                     );
                 }
@@ -139,7 +143,9 @@ public class PathPlanningBehaviour extends CyclicBehaviour {
                 preferredPath.get(preferredPath.size() -1),
                 preferredPath.get(0),
                 agent.getObservedEnvironment(),
-                true
+                agent.getType(),
+                agent.getFieldsMap(),
+                null
             )
         );
 

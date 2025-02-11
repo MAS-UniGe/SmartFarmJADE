@@ -3,8 +3,8 @@ package com.sdai.smartfarm.agents.robot.behaviours;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.robot.RobotAgent;
+import com.sdai.smartfarm.models.Task;
 import com.sdai.smartfarm.settings.AgentsSettings;
-import com.sdai.smartfarm.utils.Task;
 
 import jade.core.behaviours.Behaviour;
 
@@ -34,7 +34,7 @@ public class IdleBehaviour extends Behaviour {
         agent.setCurrentState(completeTaskBehaviour);
 
         done = true;
-        //LOGGER.info(getAgent().getLocalName() + ": has stopped being Idle");
+        LOGGER.fine(getAgent().getLocalName() + ": has stopped being Idle");
         
     }
 

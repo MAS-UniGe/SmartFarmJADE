@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.drone.behaviours.RequestAssistanceBehaviour;
 import com.sdai.smartfarm.agents.robot.RobotAgent;
-import com.sdai.smartfarm.utils.AssistanceRequest;
+import com.sdai.smartfarm.models.AssistanceRequest;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

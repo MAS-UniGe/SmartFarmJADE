@@ -8,13 +8,12 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.environment.Observation;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
+import com.sdai.smartfarm.logic.AStar;
+import com.sdai.smartfarm.models.Position;
 import com.sdai.smartfarm.settings.AgentsSettings;
-import com.sdai.smartfarm.utils.AStar;
-import com.sdai.smartfarm.utils.Position;
 
 import jade.core.behaviours.TickerBehaviour;
 
@@ -42,6 +41,7 @@ public class FollowPathBehaviour extends TickerBehaviour {
         this.pathIterator = this.path.listIterator();
         
     }
+
     
     protected Observation observeAndUpdate() {
 
@@ -79,6 +79,40 @@ public class FollowPathBehaviour extends TickerBehaviour {
         return observation;
     }
 
+    protected boolean canMoveThere(
+        BaseFarmingAgent agent,
+        Position nextPosition
+    ) {
+        ObservedEnvironment environment = agent.getObservedEnvironment();
+
+        // Can't go out of bounds
+        if (
+            nextPosition.x() < 0 
+            || nextPosition.x() >= environment.width() 
+            || nextPosition.y() < 0 
+            || nextPosition.y() >= environment.height()
+        ) 
+            return false;
+
+        int index1 = nextPosition.y() * environment.width() + nextPosition.x();
+
+        TileType nextPosTile = environment.map()[index1];
+
+        // Differently from the planning part, for this check we don't care about robots vertical movement
+
+        // Cannot avoid tall obstacles and cannot fly over short ones if not drone
+        if (
+            nextPosTile == TileType.TALL_OBSTACLE
+            || (nextPosTile == TileType.OBSTACLE && agent.getType() != AgentType.DRONE)
+        )
+            return false;
+
+        int nextField = agent.getFieldsMap()[index1];
+
+        return (agent.getFieldsToAvoid().contains(nextField));
+
+    }
+
     @Override
     protected void onTick() {
 
@@ -92,35 +126,29 @@ public class FollowPathBehaviour extends TickerBehaviour {
 
         BaseFarmingAgent agent = (BaseFarmingAgent) getAgent();
 
-        boolean canFly = (agent instanceof DroneAgent);
-
         ObservedEnvironment observedEnvironment = agent.getObservedEnvironment();
 
         Position currentPosition = agent.getPosition();
         Position nextPosition = pathIterator.next();
-
-        TileType nextTile = observedEnvironment.map()[nextPosition.y() * observedEnvironment.width() + nextPosition.x()];
-
-        boolean encounteredObstacle = false;
         
-        while (nextTile == TileType.TALL_OBSTACLE || (nextTile == TileType.OBSTACLE && !canFly)) {
-            encounteredObstacle = true;
+        while (!canMoveThere(agent, nextPosition)) {
 
             if(!pathIterator.hasNext()) {
                 stop();
                 return;
             }
             nextPosition = pathIterator.next();
-            nextTile = observedEnvironment.map()[nextPosition.y() * observedEnvironment.width() + nextPosition.x()];
 
         }
 
-        if(encounteredObstacle || !currentPosition.isAdjacent(nextPosition)) {
+        if(!currentPosition.isAdjacent(nextPosition)) {
             List<Position> pathToAvoidObstacle = AStar.reachSingleDestination(
                 currentPosition, 
                 nextPosition, 
                 observedEnvironment, 
-                canFly
+                agent.getType(),
+                agent.getFieldsMap(),
+                agent.getFieldsToAvoid()
             );
 
             if (pathToAvoidObstacle == null) { // then path is impossible: this will trigger a failure notification
@@ -128,19 +156,22 @@ public class FollowPathBehaviour extends TickerBehaviour {
                 return;
             }
 
-            //Sadly ListIterator does not have an addAll() method
+            // Sadly ListIterator does not have an addAll() method
             for(Position newPathPosition : pathToAvoidObstacle) {
                 pathIterator.add(newPathPosition);
             }
             for(int i = 0; i < pathToAvoidObstacle.size(); i++) {
+            // And there is no way to clone an iterator, so we must go back manually :/
                 pathIterator.previous();
             }
 
             nextPosition = pathIterator.next();
         }
 
-        if(!currentPosition.isAdjacent(nextPosition)) 
-            throw new IllegalStateException("There is a bug in the code: positions are not adjacent: " + currentPosition + ", " + nextPosition);
+        if(!currentPosition.isAdjacent(nextPosition)) {
+            LOGGER.severe("There is a bug in the code: positions are not adjacent: " + currentPosition + ", " + nextPosition);
+            throw new IllegalStateException("positions are not adjacent");
+        }
             
         if(currentPosition != nextPosition) {
             
@@ -148,9 +179,11 @@ public class FollowPathBehaviour extends TickerBehaviour {
 
             if(success) {
                 agent.setPosition(nextPosition);
+
             } else {
                 // can only fail if 2 agents want to go to the same spot at the same exact time and neither of them was occupying it beforehand
-                pathIterator.previous(); // we go back one step so that we can retry getting to the same position or avoiding the new obstacle
+                pathIterator.previous();  // we go back one step so that we can retry getting to the same position or avoiding the new obstacle
+
             }
         }
         

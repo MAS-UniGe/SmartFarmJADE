@@ -14,6 +14,8 @@ public class Crops {
 
     private final Random rng;
 
+    private final double growthLimit = 1.0;
+
     private CropsState state = CropsState.MISSING;
 
     private CropsNeeds needs = new CropsNeeds();
@@ -21,6 +23,8 @@ public class Crops {
     private double growth = 0.0;
 
     private double wellBeing = 1.0;
+
+    private boolean decaying = false;
 
     public Crops(final Random rng) {
         this.rng = rng;
@@ -30,8 +34,28 @@ public class Crops {
         return state;
     }
 
+    public void removeWeeds() {
+        needs.setWeedRemoval(false);
+        if(!needs.isThereAny() && state != CropsState.DEAD) {
+            state = CropsState.HEALTHY;
+        }
+    }
+
+    public void water() {
+        needs.setWatering(false);
+        if(!needs.isThereAny() && state != CropsState.DEAD) {
+            state = CropsState.HEALTHY;
+        }
+    }
+
+    // TODO: Maybe add measurement error?
     public double checkGrowth() {
         return growth;
+    }
+
+    // TODO: Maybe add measurement error?
+    public double estimateWellBeing() {
+        return wellBeing;
     }
 
     public CropsNeeds getNeeds() {
@@ -40,7 +64,7 @@ public class Crops {
 
     public void seed() {
         if (state == CropsState.MISSING) {
-            state = CropsState.GROWING;
+            state = CropsState.HEALTHY;
             growth = 0.0;
         }
     }
@@ -70,32 +94,36 @@ public class Crops {
 
     public void update() {
 
+        if (decaying && rng.nextDouble() < settings.dyingChance()) 
+            state = CropsState.DEAD;
+
         if (state == CropsState.UNWELL && !needs.isThereAny()) // then it has been healed/supported/watered/whatever
-            state = CropsState.GROWING;
+            state = CropsState.HEALTHY;
 
         switch (state) {
-            case GROWING:
-                growth += rng.nextDouble(0.5, 1.0) * settings.saneGrowthRate();
-                //if (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance())
-                    //state = CropsState.DECAYING;
-                //else 
+            case HEALTHY:
+                if(!decaying)
+                    growth += rng.nextDouble(0.5, 1.0) * settings.healthyGrowthRate();
+                if (growth > growthLimit && rng.nextDouble() < settings.decayChance())
+                    decaying = true;
+                else 
                     createNeeds();
                 break;
 
             case UNWELL:
-                growth += rng.nextDouble(0.5, 1.0) * settings.unwellGrowthRate();
-                wellBeing -= settings.wellBeingDecay();
-                /*if (wellBeing < settings.wellBeingThreshold() || (growth > settings.growthLimit() && rng.nextDouble() < settings.decayChance()))
-                    state = CropsState.DECAYING;
-                else */
+                if(!decaying) {
+                    growth += rng.nextDouble(0.5, 1.0) * settings.unwellGrowthRate();
+                    wellBeing -= rng.nextDouble(0.5, 1.0) * settings.wellBeingDecrease();
+                }
+                if (wellBeing < settings.wellBeingThreshold() || (growth > growthLimit && rng.nextDouble() < settings.decayChance()))
+                    decaying = true;
+                else
                     createNeeds();
                 break;
 
-            case DECAYING:
-                if(rng.nextDouble() < settings.dyingChance()) state = CropsState.DEAD;
-                break;
-            default:
-                break;
+            default: // DEAD or MISSING
+                return;
+
         }
 
     }

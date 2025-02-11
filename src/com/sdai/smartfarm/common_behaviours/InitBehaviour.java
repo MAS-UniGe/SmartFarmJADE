@@ -1,19 +1,19 @@
 package com.sdai.smartfarm.common_behaviours;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.logging.Logger;
 
-import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.agents.drone.behaviours.PathPlanningBehaviour;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
+import com.sdai.smartfarm.models.FarmField;
+import com.sdai.smartfarm.models.Position;
 import com.sdai.smartfarm.settings.AgentsSettings;
 import com.sdai.smartfarm.settings.SimulationSettings;
-import com.sdai.smartfarm.utils.Position;
 
 import jade.core.behaviours.OneShotBehaviour;
 
@@ -23,7 +23,7 @@ public class InitBehaviour extends OneShotBehaviour {
     protected int height;
 
     protected int[] fieldsMap;
-    protected transient List<List<Position>> fields;
+    protected transient List<FarmField> fields;
 
     protected static SimulationSettings simulationSettings = SimulationSettings.defaultSimulationSettings();
     protected static AgentsSettings agentsSettings =  AgentsSettings.defaultAgentsSettings();
@@ -33,6 +33,7 @@ public class InitBehaviour extends OneShotBehaviour {
     protected void addBehaviours(BaseFarmingAgent agent) {
 
         agent.addBehaviour(new AgentDiscoveryBehaviour(agent, agentsSettings.agentDiscoveryInterval()));
+        agent.addBehaviour(new ReceiveHarvestNotificationBehaviour());
     }
 
     @Override
@@ -76,7 +77,7 @@ public class InitBehaviour extends OneShotBehaviour {
 
         fields = new ArrayList<>();
 
-        fields.add(new ArrayList<>());
+        fields.add(new FarmField(new ArrayList<>(), new ArrayDeque<>()));
         
         int curFieldId = 0;
 
@@ -87,11 +88,11 @@ public class InitBehaviour extends OneShotBehaviour {
 
                 if(map[index] == TileType.FARMLAND && fieldsMap[index] == -1) {
 
-                    fields.add(new ArrayList<>());
+                    fields.add(new FarmField(new ArrayList<>(), new ArrayDeque<>()));
 
                     visit(map, x, y, curFieldId);
 
-                    fields.get(curFieldId).sort(
+                    fields.get(curFieldId).positions().sort(
                         Comparator.comparingInt(Position::y)
                             .thenComparingInt(Position::x)
                     );
@@ -126,7 +127,7 @@ public class InitBehaviour extends OneShotBehaviour {
             return;
         
         fieldsMap[index] = curFieldId;
-        fields.get(curFieldId).add(new Position(x, y));
+        fields.get(curFieldId).positions().add(new Position(x, y));
 
         visit(map, x-1, y, curFieldId);
         visit(map, x+1, y, curFieldId);
@@ -137,7 +138,7 @@ public class InitBehaviour extends OneShotBehaviour {
 
     protected int splitFieldIntoSubFields(int curFieldId, int numSplits, int splitSize) {
 
-        List<Position> buffer = fields.remove(curFieldId);
+        List<Position> buffer = fields.remove(curFieldId).positions();
 
         int start = 0;
 
@@ -158,13 +159,13 @@ public class InitBehaviour extends OneShotBehaviour {
                 splitIndex++;
             }
 
-            List<Position> splitField = new ArrayList<>(
+            List<Position> splitPositions = new ArrayList<>(
                 buffer.subList(start, splitIndex)
             );
 
             start = splitIndex;
 
-            fields.add(splitField);
+            fields.add(new FarmField(splitPositions, new ArrayDeque<>()));
             curFieldId++;
         }
 
@@ -173,9 +174,14 @@ public class InitBehaviour extends OneShotBehaviour {
             fieldsMap[p.y() * width + p.x()] = curFieldId;
         }
 
-        fields.add(new ArrayList<>(
-            buffer.subList(start, buffer.size())
-        ));
+        fields.add(
+            new FarmField(
+                new ArrayList<>(
+                    buffer.subList(start, buffer.size())
+                ),
+                new ArrayDeque<>()
+            )
+        );
         
         return curFieldId;
 

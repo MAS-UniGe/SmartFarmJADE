@@ -6,10 +6,13 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.logging.Logger;
 
 import com.sdai.smartfarm.settings.SimulationSettings;
 
 public class EnvironmentController {
+
+    private static final Logger LOGGER = Logger.getLogger(EnvironmentController.class.getName());
 
     private static SimulationSettings settings = SimulationSettings.defaultSimulationSettings();
 
@@ -53,7 +56,9 @@ public class EnvironmentController {
         long lastRender = now;
         long lastUpdate = now;
 
-        final long optimalUpdateTime = 1_000_000_000 / settings.targetUPS();
+        int environmentUpdates = 0;
+
+        final long optimalUpdateTime = (long)(1_000_000_000 / settings.targetUPS());
         final long optimalRenderTime = 1_000_000_000 / settings.targetFPS();
         
         while(running) {
@@ -61,8 +66,17 @@ public class EnvironmentController {
 
             if (now - lastUpdate >= optimalUpdateTime) {
 
-                lastUpdate = now;
+                lastUpdate = lastUpdate + optimalUpdateTime; // env updates must be as consistent as possible
                 environment.update();
+
+                environmentUpdates++;
+                if (environmentUpdates % 864 == 0) {
+                    LOGGER.info((environmentUpdates / 864) + " real days passed");
+                }
+                else if(environmentUpdates % 36 == 0) {
+                    LOGGER.info((environmentUpdates / 36) + " real hours passed");
+                }
+                
             }
 
             if (now - lastRender >= optimalRenderTime) {

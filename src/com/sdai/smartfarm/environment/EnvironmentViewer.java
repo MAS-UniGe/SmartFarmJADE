@@ -167,16 +167,16 @@ public class EnvironmentViewer extends JPanel {
                             g.setColor(new Color(44, 44, 44));
                             break;
                         case ROBOT:
-                            g.setColor(new Color(88, 88, 88));
+                            g.setColor(new Color(88, 88, 150));
                             break;
                         case TRACTOR:
-                            g.setColor(new Color(150, 150, 150));
+                            g.setColor(new Color(200, 50, 50));
                             break;
                     }
                         
                     g.fillRect(drawX, drawY, tileSize, tileSize);
 
-                    g.setColor(Color.BLACK);
+                    g.setColor(Color.WHITE);
 
                     g.drawRect(drawX, drawY, tileSize, tileSize);
                 }

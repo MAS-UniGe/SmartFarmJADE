@@ -14,10 +14,11 @@ public class RobotInitBehaviour extends InitBehaviour {
     @Override
     protected void addBehaviours(BaseFarmingAgent agent) {
 
-        super.addBehaviours(agent);
-        
+        // Yes, I want a ClassCastException here if you give something called "RobotInitBehaviour" to anything but a Robot
         if (!(agent instanceof RobotAgent robotAgent)) throw new ClassCastException("RobotInitBehaviour should be given only to a Robot!");
-
+ 
+        super.addBehaviours(robotAgent);
+        
         robotAgent.addBehaviour(new OfferAssistanceBehaviour());
         robotAgent.addBehaviour(new AcceptTasksBehaviour());
         

@@ -11,10 +11,9 @@ import com.sdai.smartfarm.environment.crops.CropsNeeds;
 import com.sdai.smartfarm.environment.crops.CropsState;
 import com.sdai.smartfarm.environment.tiles.FarmLandTile;
 import com.sdai.smartfarm.environment.tiles.PathTile;
-import com.sdai.smartfarm.environment.tiles.TallObstacleTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
-import com.sdai.smartfarm.utils.Position;
+import com.sdai.smartfarm.models.Position;
 
 
 public class Environment implements ObservableEnvironment {
@@ -161,32 +160,49 @@ public class Environment implements ObservableEnvironment {
 
         CropsState cropsState = null;
         CropsNeeds cropsNeeds = null;
+        double growth = 0.0;
+        double wellBeing = 0.0;
 
         Tile tile = getTile(xCenter, yCenter);
         if(tile instanceof FarmLandTile farmLandTile) {
             cropsState = farmLandTile.getCrops().checkState();
             cropsNeeds = farmLandTile.getCrops().getNeeds();
+            growth = farmLandTile.getCrops().checkGrowth();
+            wellBeing = farmLandTile.getCrops().estimateWellBeing();
         }
 
-        return new Observation(observedTiles, observedAgents, cropsState, cropsNeeds);
+        return new Observation(observedTiles, observedAgents, cropsState, cropsNeeds, growth, wellBeing);
     }
 
+    @Override
     public void removeWeeds(int x, int y) {
         Tile tile = getTile(x, y);
 
         if (tile instanceof FarmLandTile farmlandTile && farmlandTile.getCrops().getNeeds().getWeedRemoval()) {
-                farmlandTile.getCrops().getNeeds().setWeedRemoval(false);
+            farmlandTile.getCrops().removeWeeds();
         }
         
     }
 
+    @Override
     public void water(int x, int y) {
         Tile tile = getTile(x, y);
 
         if (tile instanceof FarmLandTile farmlandTile && farmlandTile.getCrops().getNeeds().getWatering()) {
-                farmlandTile.getCrops().getNeeds().setWatering(false);
+            farmlandTile.getCrops().water();
         }
         
+    }
+
+    @Override
+    public double harvest(int x, int y) {
+        Tile tile = getTile(x, y);
+
+        if (tile instanceof FarmLandTile farmlandTile) {
+            return farmlandTile.harvest();
+        }
+
+        return 0.0;
     }
     
 }

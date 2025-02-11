@@ -5,10 +5,10 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.drone.behaviours.RequestAssistanceBehaviour;
 import com.sdai.smartfarm.agents.robot.RobotAgent;
-import com.sdai.smartfarm.utils.AStar;
-import com.sdai.smartfarm.utils.AssistanceRequest;
-import com.sdai.smartfarm.utils.Position;
-import com.sdai.smartfarm.utils.Task;
+import com.sdai.smartfarm.logic.AStar;
+import com.sdai.smartfarm.models.AssistanceRequest;
+import com.sdai.smartfarm.models.Position;
+import com.sdai.smartfarm.models.Task;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
@@ -47,7 +47,9 @@ public class AcceptTasksBehaviour extends CyclicBehaviour {
                 lastPosition, 
                 request.position(), 
                 agent.getObservedEnvironment(), 
-                false
+                agent.getType(),
+                agent.getFieldsMap(),
+                null
             );
 
             if (path==null) {

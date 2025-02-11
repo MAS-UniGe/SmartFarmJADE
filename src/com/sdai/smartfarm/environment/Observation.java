@@ -9,7 +9,9 @@ public record Observation(
     TileType[] tiles,
     AgentType[] agents,
     CropsState cropsState,
-    CropsNeeds needs
+    CropsNeeds needs,
+    double growth,
+    double wellBeing
 ) {
     
 }

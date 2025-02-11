@@ -1,12 +1,11 @@
 package com.sdai.smartfarm.settings;
 
 public record CropsSettings(
-    double growthLimit,
     double dyingChance,
     double decayChance,
     double wellBeingThreshold,
-    double wellBeingDecay,
-    double saneGrowthRate,
+    double wellBeingDecrease,
+    double healthyGrowthRate,
     double unwellGrowthRate,
     double wateringNeed,
     double weedRemovalNeed
@@ -14,15 +13,14 @@ public record CropsSettings(
 
     public static CropsSettings defaultCropsSettings() {
         return new CropsSettings(
-            1.2,
-            1e-6, 
-            1e-6, 
+            1e-5, 
+            1.2e-5, 
             0.4, 
-            0.0003, 
-            0.002, 
-            0.001,
-            2e-6, 
-            3e-7
+            2.2e-5, 
+            1.9e-5, 
+            1.4e-5,
+            1.6e-4, 
+            1.6e-4
         );
     }
 }

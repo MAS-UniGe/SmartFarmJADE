@@ -8,7 +8,7 @@ import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.drone.behaviours.DroneInitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
-import com.sdai.smartfarm.utils.Position;
+import com.sdai.smartfarm.models.Position;
 
 public class DroneAgent extends BaseFarmingAgent {
 

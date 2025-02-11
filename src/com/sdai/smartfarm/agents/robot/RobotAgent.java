@@ -9,9 +9,9 @@ import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.robot.behaviours.CompleteTaskBehaviour;
 import com.sdai.smartfarm.agents.robot.behaviours.RobotInitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
-import com.sdai.smartfarm.utils.AssistanceRequest;
-import com.sdai.smartfarm.utils.Position;
-import com.sdai.smartfarm.utils.Task;
+import com.sdai.smartfarm.models.AssistanceRequest;
+import com.sdai.smartfarm.models.Position;
+import com.sdai.smartfarm.models.Task;
 
 import jade.core.behaviours.Behaviour;
 

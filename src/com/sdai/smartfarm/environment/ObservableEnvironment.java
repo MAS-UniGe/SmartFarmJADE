@@ -1,7 +1,7 @@
 package com.sdai.smartfarm.environment;
 
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
-import com.sdai.smartfarm.utils.Position;
+import com.sdai.smartfarm.models.Position;
 
 public interface ObservableEnvironment {
 
@@ -12,5 +12,7 @@ public interface ObservableEnvironment {
     void removeWeeds(int x, int y);
 
     void water(int x, int y);
+
+    double harvest(int x, int y);
     
 }

@@ -9,8 +9,8 @@ import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.drone.DroneAgent;
 import com.sdai.smartfarm.environment.crops.CropsNeeds;
-import com.sdai.smartfarm.utils.AssistanceRequest;
-import com.sdai.smartfarm.utils.Position;
+import com.sdai.smartfarm.models.AssistanceRequest;
+import com.sdai.smartfarm.models.Position;
 
 import jade.core.AID;
 import jade.core.behaviours.Behaviour;
@@ -162,7 +162,7 @@ public class RequestAssistanceBehaviour extends Behaviour {
         }
         if (taskCompletionReply.getPerformative() == ACLMessage.INFORM) {
             // Success
-            LOGGER.info("successfully helped crops at: " + request.position());
+            LOGGER.fine("successfully helped crops at: " + request.position());
             step = 4;
         } else if (taskCompletionReply.getPerformative() == ACLMessage.FAILURE) {
             // Robot failed, gonna ask another one

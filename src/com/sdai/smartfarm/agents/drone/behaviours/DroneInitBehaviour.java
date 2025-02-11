@@ -12,9 +12,12 @@ public class DroneInitBehaviour extends InitBehaviour {
     @Override
     protected void addBehaviours(BaseFarmingAgent agent) {
 
-        super.addBehaviours(agent);
-        agent.addBehaviour(new PathPlanningBehaviour());
-        agent.addBehaviour(new CheckOnCropsBehaviour((DroneAgent) agent, (long) (1000.0 / settings.droneSpeed())));
+        // Yes, I want a ClassCastException here if you give something called "DroneInitBehaviour" to anything but a Drone
+        if (!(agent instanceof DroneAgent droneAgent)) throw new ClassCastException("DroneInitBehaviour should be given only to a Drone!");
+
+        super.addBehaviours(droneAgent);
+        droneAgent.addBehaviour(new PathPlanningBehaviour());
+        droneAgent.addBehaviour(new CheckOnCropsBehaviour(droneAgent, (long) (1000.0 / settings.droneSpeed())));
 
     } 
 }

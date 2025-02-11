@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.utils;
+package com.sdai.smartfarm.models;
 
 import java.io.Serializable;
 

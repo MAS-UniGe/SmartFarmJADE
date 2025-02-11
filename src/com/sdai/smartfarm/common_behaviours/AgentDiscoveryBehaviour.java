@@ -3,7 +3,7 @@ package com.sdai.smartfarm.common_behaviours;
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.drone.behaviours.LoadBalancingBehaviour;
-import com.sdai.smartfarm.utils.ArrayCheck;
+import com.sdai.smartfarm.logic.VectorUtils;
 
 import jade.core.AID;
 import jade.core.behaviours.TickerBehaviour;
@@ -52,7 +52,7 @@ public class AgentDiscoveryBehaviour extends TickerBehaviour {
 
                 agent.setKnown(agentType, discoveredAgents);
 
-                if (!ArrayCheck.areEquivalent(alreadyKnown, discoveredAgents)) {
+                if (!VectorUtils.areEquivalentSets(alreadyKnown, discoveredAgents)) {
 
                     logger.info(agent.getAID().getLocalName() + ": discovered some new agents");
 

@@ -8,10 +8,10 @@ import java.util.logging.Logger;
 import com.sdai.smartfarm.agents.robot.RobotAgent;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
+import com.sdai.smartfarm.models.AssistanceRequest;
+import com.sdai.smartfarm.models.Position;
+import com.sdai.smartfarm.models.Task;
 import com.sdai.smartfarm.settings.AgentsSettings;
-import com.sdai.smartfarm.utils.AssistanceRequest;
-import com.sdai.smartfarm.utils.Position;
-import com.sdai.smartfarm.utils.Task;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
@@ -52,17 +52,18 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
 
         TileType tile = environment.map()[agent.getPosition().y() * environment.width() + agent.getPosition().x()];
 
-        //if(tile == TileType.PATH) {
+        if(tile == TileType.PATH) {
 
             Behaviour idleBehaviour = new IdleBehaviour();
             agent.addBehaviour(idleBehaviour);
             agent.setCurrentState(idleBehaviour);
 
             return;
-        //} 
+        } 
 
-/* 
+ 
         // in this case we just follow the last path in reverse until we're out of the field
+        // TODO: I need something better as this doesn't work if 2 tiles next to each other are fixed one after the other
         List<Position> pathToGetOutOfFiels = new LinkedList<>();
 
         ListIterator<Position> iterator = lastPath.listIterator(lastPath.size());
@@ -88,7 +89,7 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
 
         Behaviour completeTaskBehaviour = new CompleteTaskBehaviour(agent, (long) (1000.0 / settings.robotSpeed()), moveOutOfFieldsTask);
         agent.addBehaviour(completeTaskBehaviour);
-        agent.setCurrentState(completeTaskBehaviour);*/
+        agent.setCurrentState(completeTaskBehaviour);
         
     }
     
