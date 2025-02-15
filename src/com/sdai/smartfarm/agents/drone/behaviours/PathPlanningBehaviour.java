@@ -8,8 +8,8 @@ import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.drone.DroneAgent;
-import com.sdai.smartfarm.logic.AStar;
 import com.sdai.smartfarm.models.Position;
+import com.sdai.smartfarm.utils.AStar;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

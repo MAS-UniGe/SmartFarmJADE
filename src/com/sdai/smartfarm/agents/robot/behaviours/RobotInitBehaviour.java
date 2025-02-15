@@ -3,6 +3,7 @@ package com.sdai.smartfarm.agents.robot.behaviours;
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.robot.RobotAgent;
 import com.sdai.smartfarm.common_behaviours.InitBehaviour;
+import com.sdai.smartfarm.common_behaviours.ReceiveHarvestNotificationBehaviour;
 import com.sdai.smartfarm.settings.AgentsSettings;
 
 import jade.core.behaviours.Behaviour;
@@ -21,6 +22,7 @@ public class RobotInitBehaviour extends InitBehaviour {
         
         robotAgent.addBehaviour(new OfferAssistanceBehaviour());
         robotAgent.addBehaviour(new AcceptTasksBehaviour());
+        robotAgent.addBehaviour(new ReceiveHarvestNotificationBehaviour());
         
         Behaviour behaviour = new IdleBehaviour();
         robotAgent.addBehaviour(behaviour);

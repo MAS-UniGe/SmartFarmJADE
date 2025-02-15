@@ -45,12 +45,12 @@ public class UpdatePredictionsBehaviour extends TickerBehaviour {
                 Deque<Double> prediction = predictions.get(index);
 
                 prediction.poll();
-                prediction.addLast(null); // I add null and not 0.0 because I want to make clear this states for "I don't know" (even though it behaves the same)
+                prediction.addLast(0.0);
 
             }
 
             field.totalRewardPrediction().poll();
-            field.totalRewardPrediction().addLast(null);
+            field.totalRewardPrediction().addLast(0.0);
         }
 
     }

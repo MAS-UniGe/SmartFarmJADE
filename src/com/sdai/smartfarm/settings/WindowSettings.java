@@ -10,11 +10,11 @@ public record WindowSettings(
 
     public static WindowSettings defaultWindowSettings() {
         return new WindowSettings(
-            500,
-            500,
-            32,
-            10, //40, 
-            10 // 120
+            Integer.valueOf(System.getenv().getOrDefault("WINDOW_WIDTH", "500")),
+            Integer.valueOf(System.getenv().getOrDefault("WINDOW_HEIGHT", "500")),
+            Integer.valueOf(System.getenv().getOrDefault("WINDOW_GRID_SIZE", "32")),
+            Integer.valueOf(System.getenv().getOrDefault("WINDOW_MIN_TILE_SIZE", "10")), 
+            Integer.valueOf(System.getenv().getOrDefault("WINDOW_MAX_TILE_SIZE", "10"))
         );
     }
 

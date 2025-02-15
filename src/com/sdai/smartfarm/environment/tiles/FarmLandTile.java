@@ -12,9 +12,6 @@ public class FarmLandTile implements Tile {
 
     public FarmLandTile(final Random rng) {
         crops = new Crops(rng);
-
-        // I initialize everything as already seeded as I don't have enough time to implement this step as well
-        crops.seed();
     }
 
     public Crops getCrops() {
@@ -29,10 +26,12 @@ public class FarmLandTile implements Tile {
     @Override
     public Color getColor() {
 
-        if(crops.checkState() == CropsState.DEAD) return new Color(200, 185, 100);
+        if(crops.checkState() == CropsState.MISSING) return new Color(80, 40, 0);
 
-        int red = 80 + (int)(160 * crops.checkGrowth());
-        int green = 40 + (int)(200 * crops.checkGrowth());
+        if(crops.checkState() == CropsState.DEAD) return new Color(200, 175, 130);
+
+        int red = 80 + (int)(160 * Math.min(crops.checkGrowth(), 1.0));
+        int green = 40 + (int)(200 * Math.min(crops.checkGrowth(), 1.0));
         int blue = 0;
 
         if (crops.checkState() == CropsState.UNWELL) {
@@ -42,6 +41,14 @@ public class FarmLandTile implements Tile {
         }
 
         return new Color(red, green, blue);
+    }
+
+    public void seed(double cheat) {
+        crops.seed(cheat);
+    }
+
+    public void seed() {
+        crops.seed();
     }
 
     public double harvest() {

@@ -11,9 +11,9 @@ import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.environment.Observation;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.tiles.TileType;
-import com.sdai.smartfarm.logic.AStar;
 import com.sdai.smartfarm.models.Position;
 import com.sdai.smartfarm.settings.AgentsSettings;
+import com.sdai.smartfarm.utils.AStar;
 
 import jade.core.behaviours.TickerBehaviour;
 
@@ -109,7 +109,7 @@ public class FollowPathBehaviour extends TickerBehaviour {
 
         int nextField = agent.getFieldsMap()[index1];
 
-        return (agent.getFieldsToAvoid().contains(nextField));
+        return (!agent.getFieldsToAvoid().contains(nextField));
 
     }
 

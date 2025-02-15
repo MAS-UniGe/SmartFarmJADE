@@ -16,10 +16,7 @@ public class ReceiveHarvestNotificationBehaviour extends CyclicBehaviour {
     @Override
     public void action() {
         
-        MessageTemplate mt = MessageTemplate.and(
-            MessageTemplate.MatchPerformative(ACLMessage.INFORM),
-            MessageTemplate.MatchConversationId("Field-Harvest")
-        );
+        MessageTemplate mt = MessageTemplate.MatchConversationId("Field-Harvest");
 
         ACLMessage msg = getAgent().receive(mt);
 
@@ -30,14 +27,13 @@ public class ReceiveHarvestNotificationBehaviour extends CyclicBehaviour {
 
         try {
 
-            String msgInfo = msg.getContent();
             int fieldId = (int) msg.getContentObject();
             
             BaseFarmingAgent agent = (BaseFarmingAgent) getAgent();
 
-            if(msgInfo.equals("avoid"))
+            if(msg.getPerformative() == ACLMessage.REQUEST)
                 agent.avoidField(fieldId);
-            else if(msgInfo.equals("allow"))
+            else 
                 agent.allowField(fieldId);
             
         } catch(UnreadableException | ClassCastException e) {

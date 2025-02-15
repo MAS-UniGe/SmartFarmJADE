@@ -37,6 +37,7 @@ public class OfferAssistanceBehaviour extends CyclicBehaviour {
             AssistanceRequest request = (AssistanceRequest) msg.getContentObject();
 
             if (agent.isHandlingRequest(request)) {
+                // The agent is already handling the request
                 ACLMessage response = new ACLMessage(ACLMessage.REFUSE);
                 response.setConversationId(RequestAssistanceBehaviour.CONVERSATION_ID);
                 response.setInReplyTo(replyCode);
@@ -45,7 +46,16 @@ public class OfferAssistanceBehaviour extends CyclicBehaviour {
                 agent.send(response);
                 return;
             }
-            // Else it does not and it must compute the cost of handling a further request
+            if (agent.getTasksSize() >= 200) {
+                // the agent has too many tasks already
+                ACLMessage response = new ACLMessage(ACLMessage.REFUSE);
+                response.setConversationId(RequestAssistanceBehaviour.CONVERSATION_ID);
+                response.setInReplyTo(replyCode);
+
+                agent.send(response);
+                return;
+            }
+            // Else it must compute the cost of handling a further request
 
             int cost = agent.estimateCostForRequest(request);
             ACLMessage response = new ACLMessage(ACLMessage.PROPOSE);

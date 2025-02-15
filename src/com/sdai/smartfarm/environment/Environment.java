@@ -11,6 +11,7 @@ import com.sdai.smartfarm.environment.crops.CropsNeeds;
 import com.sdai.smartfarm.environment.crops.CropsState;
 import com.sdai.smartfarm.environment.tiles.FarmLandTile;
 import com.sdai.smartfarm.environment.tiles.PathTile;
+import com.sdai.smartfarm.environment.tiles.TallObstacleTile;
 import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.environment.tiles.TileType;
 import com.sdai.smartfarm.models.Position;
@@ -92,10 +93,10 @@ public class Environment implements ObservableEnvironment {
 
         for(int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                /*if(rng.nextFloat() < 0.003) {
+                if(rng.nextFloat() < 0.003) {
                     map[y * width + x] = new TallObstacleTile();
                     continue;
-                }*/
+                }
 
                 if (y % 20 < 2 || y >= height - 2 || x % 40 < 2 || x >= width - 2)
                     map[y * width + x] = new PathTile();
@@ -192,6 +193,15 @@ public class Environment implements ObservableEnvironment {
             farmlandTile.getCrops().water();
         }
         
+    }
+
+    @Override
+    public void seed(int x, int y, double cheat) {
+        Tile tile = getTile(x, y);
+
+        if (tile instanceof FarmLandTile farmlandTile) {
+            farmlandTile.seed(cheat);
+        }
     }
 
     @Override

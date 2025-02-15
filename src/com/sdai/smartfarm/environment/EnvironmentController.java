@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.util.logging.Logger;
 
+import com.sdai.smartfarm.Main;
 import com.sdai.smartfarm.settings.SimulationSettings;
 
 public class EnvironmentController {
@@ -72,6 +73,7 @@ public class EnvironmentController {
                 environmentUpdates++;
                 if (environmentUpdates % 864 == 0) {
                     LOGGER.info((environmentUpdates / 864) + " real days passed");
+                    LOGGER.info("Total reward: " + Main.getTotalReward());
                 }
                 else if(environmentUpdates % 36 == 0) {
                     LOGGER.info((environmentUpdates / 36) + " real hours passed");

@@ -3,6 +3,7 @@ package com.sdai.smartfarm.agents.robot.behaviours;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Random;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.robot.RobotAgent;
@@ -12,10 +13,12 @@ import com.sdai.smartfarm.models.AssistanceRequest;
 import com.sdai.smartfarm.models.Position;
 import com.sdai.smartfarm.models.Task;
 import com.sdai.smartfarm.settings.AgentsSettings;
+import com.sdai.smartfarm.utils.AStar;
 
 import jade.core.behaviours.Behaviour;
 import jade.core.behaviours.OneShotBehaviour;
 
+/* NOT IMPLEMENTED IN TIME :(
 
 public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
 
@@ -23,12 +26,12 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
 
     private static AgentsSettings settings = AgentsSettings.defaultAgentsSettings();
 
-    protected final transient List<Position> lastPath;
+    private final int fieldId;
 
-    public MoveOutOfFieldsBehaviour(RobotAgent agent, List<Position> lastPath) {
+    public MoveOutOfFieldsBehaviour(RobotAgent agent, int fieldId) {
         super(agent);
 
-        this.lastPath = lastPath;
+        this.fieldId = fieldId;
     }
 
     @Override
@@ -52,7 +55,9 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
 
         TileType tile = environment.map()[agent.getPosition().y() * environment.width() + agent.getPosition().x()];
 
-        if(tile == TileType.PATH) {
+        int currentFieldId = agent.getFieldsMap()[];
+
+        if(currentFieldId != fieldId) {
 
             Behaviour idleBehaviour = new IdleBehaviour();
             agent.addBehaviour(idleBehaviour);
@@ -64,25 +69,26 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
  
         // in this case we just follow the last path in reverse until we're out of the field
         // TODO: I need something better as this doesn't work if 2 tiles next to each other are fixed one after the other
-        List<Position> pathToGetOutOfFiels = new LinkedList<>();
+        Random rngTileSelector = new Random();
+        int destFieldId = fieldId;
 
-        ListIterator<Position> iterator = lastPath.listIterator(lastPath.size());
+        // MONTE CARLO
+        while(destFieldId == fieldId) {
+            int randomX = rngTileSelector.nextInt(0, environment.width() - 1);
+            int randomY = rngTileSelector.nextInt(0, environment.height() - 1);
+    
+            destFieldId = agent.getFieldsMap()[];
+        }
 
-        Position nextPosition = agent.getPosition();
-
-        while(iterator.hasPrevious()) {
-            nextPosition = iterator.previous();
-            pathToGetOutOfFiels.add(nextPosition);
-
-            tile = environment.map()[nextPosition.y() * environment.width() + nextPosition.x()];
-            if (tile == TileType.PATH) {
-                break;
-            }
+        List<Position> path = AStar.reachSingleDestination();
+        
+        if (path == null) {
+            // schedule this behaviour once again
         }
 
         Task moveOutOfFieldsTask = new Task(
             new AssistanceRequest(nextPosition, null),  // Fake assistance request
-            pathToGetOutOfFiels, 
+            path, 
             agent.getAID(), 
             null
         );
@@ -94,3 +100,4 @@ public class MoveOutOfFieldsBehaviour extends OneShotBehaviour {
     }
     
 }
+*/

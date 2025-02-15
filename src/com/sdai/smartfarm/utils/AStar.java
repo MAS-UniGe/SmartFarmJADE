@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.logic;
+package com.sdai.smartfarm.utils;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -41,14 +41,31 @@ public class AStar {
         TileType posTile = environment.map()[index0];
         TileType nextPosTile = environment.map()[index1];
 
-        // Should not move vertically in a farm if a robot
         if (
-            posTile == TileType.FARMLAND 
+            agentType == AgentType.ROBOT
+            && posTile == TileType.FARMLAND 
             && nextPosTile == TileType.FARMLAND
             && position.y() != nextPosition.y()
-            && agentType == AgentType.ROBOT
-        ) 
-            return false;
+        ) {
+            // A robot can move vertically in a farm only to dodge obstacles
+            boolean hasAnAlternative = true;
+            if (position.x() > 0) {
+                int index2 = index0 - 1;
+                TileType alternative = environment.map()[index2];
+                if (alternative == TileType.OBSTACLE || alternative == TileType.TALL_OBSTACLE)
+                    hasAnAlternative = false;
+            }
+            if (position.x() < environment.width() - 1) {
+                int index2 = index0 + 1;
+                TileType alternative = environment.map()[index2];
+                if (alternative == TileType.OBSTACLE || alternative == TileType.TALL_OBSTACLE)
+                    hasAnAlternative = false;
+            }
+            if(hasAnAlternative)
+                return false;
+                
+        }
+
 
         // Cannot avoid tall obstacles and cannot fly over short ones if not drone
         if (

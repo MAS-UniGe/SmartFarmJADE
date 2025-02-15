@@ -24,10 +24,9 @@ public class EvaluateFieldsBehaviour extends OneShotBehaviour {
 
         TractorAgent agent = (TractorAgent) getAgent();
 
-        ACLMessage msg = new ACLMessage(ACLMessage.INFORM); // could be a request but I want to use this convId also for the completion notification
+        ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
         msg.setConversationId("Field-Harvest");
-        msg.setContent("avoid");
-
+        
         for(AID receiver: agent.getKnown(AgentType.DRONE)) {
             msg.addReceiver(receiver);
         }
@@ -43,7 +42,7 @@ public class EvaluateFieldsBehaviour extends OneShotBehaviour {
             throw new IllegalStateException(e.getMessage());
         }
 
-        getAgent().send(msg);
+        agent.send(msg);
     }
 
     @Override
@@ -54,6 +53,11 @@ public class EvaluateFieldsBehaviour extends OneShotBehaviour {
         int fieldId = 0;
 
         for (FarmField field : agent.getFields()) {
+
+            if(!agent.getFieldsToAvoid().contains(fieldId)) {// then the field is already being harvested
+                fieldId++;
+                continue;
+            }
 
             Deque<Double> totalRewardPrediction = field.totalRewardPrediction();
 
@@ -82,7 +86,10 @@ public class EvaluateFieldsBehaviour extends OneShotBehaviour {
 
                 agent.allowField(fieldId);
 
-                agent.addBehaviour(new HarvestCropsBehaviour(agent, (long) (1000 / settings.tractorSpeed()), fieldId));
+                if(agent.getHarvestSize() == 0)
+                    agent.addBehaviour(new HarvestCropsBehaviour(agent, (long) (1000 / settings.tractorSpeed()), fieldId));
+
+                agent.assignFieldForHarvest(fieldId);
 
                 notifyAgents(fieldId);
             }
@@ -90,6 +97,8 @@ public class EvaluateFieldsBehaviour extends OneShotBehaviour {
             fieldId++;
 
         }
+
+        agent.setEvaluationScheduled(false);
 
     }
     

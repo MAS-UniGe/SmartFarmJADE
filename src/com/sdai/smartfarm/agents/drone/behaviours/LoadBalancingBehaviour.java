@@ -9,9 +9,9 @@ import java.util.logging.Logger;
 import com.sdai.smartfarm.Main;
 import com.sdai.smartfarm.agents.AgentType;
 import com.sdai.smartfarm.agents.drone.DroneAgent;
-import com.sdai.smartfarm.logic.BalancedKMeans;
 import com.sdai.smartfarm.models.Position;
 import com.sdai.smartfarm.settings.SimulationSettings;
+import com.sdai.smartfarm.utils.BalancedKMeans;
 
 import jade.core.AID;
 import jade.core.behaviours.OneShotBehaviour;

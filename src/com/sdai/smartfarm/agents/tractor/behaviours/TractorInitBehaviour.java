@@ -4,17 +4,25 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
+import java.util.Random;
 
 import com.sdai.smartfarm.agents.BaseFarmingAgent;
 import com.sdai.smartfarm.agents.tractor.TractorAgent;
 import com.sdai.smartfarm.common_behaviours.InitBehaviour;
+import com.sdai.smartfarm.environment.ObservableEnvironment;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
 import com.sdai.smartfarm.environment.crops.CropsState;
-import com.sdai.smartfarm.logic.VectorUtils;
 import com.sdai.smartfarm.models.FarmField;
 import com.sdai.smartfarm.models.Position;
+import com.sdai.smartfarm.settings.AgentsSettings;
+import com.sdai.smartfarm.settings.SimulationSettings;
+import com.sdai.smartfarm.utils.VectorUtils;
 
 public class TractorInitBehaviour extends InitBehaviour {
+
+    private static AgentsSettings agentsSettings = AgentsSettings.defaultAgentsSettings();
+
+    private static SimulationSettings simulationSettings = SimulationSettings.defaultSimulationSettings();
     
     @Override
     protected void addBehaviours(BaseFarmingAgent agent) {
@@ -24,6 +32,7 @@ public class TractorInitBehaviour extends InitBehaviour {
 
         super.addBehaviours(tractorAgent);
         agent.addBehaviour(new ReceiveMeasurementBehaviour());
+        agent.addBehaviour(new UpdatePredictionsBehaviour(tractorAgent, agentsSettings.tractorClockDelay()));
 
     }
 
@@ -34,9 +43,26 @@ public class TractorInitBehaviour extends InitBehaviour {
 
         TractorAgent agent = (TractorAgent) getAgent();
 
+        ObservableEnvironment environment = agent.getEnvironment();
+
+        Random growthRNG = new Random();
+
         //Set fields to avoid to every field
         for(int i = 0; i < agent.getFields().size(); i++) {
             agent.avoidField(i);
+
+            //cheat the seeding process
+            // TODO: eventually do this properly
+            if(agent.getLocalName().equals("Tractor-0")) {
+                
+                double initialGrowth = 0.0;
+                if(simulationSettings.growthCheat()) 
+                    initialGrowth = growthRNG.nextDouble(0.96, 0.985);
+
+                for(Position position : agent.getFields().get(i).positions()) {
+                    environment.seed(position.x(), position.y(), initialGrowth);
+                }
+            }
         }
  
         // This is most likely going to be an array of zeros, unless you set the 

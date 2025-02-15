@@ -1,5 +1,7 @@
 package com.sdai.smartfarm.environment;
 
+import javax.imageio.ImageIO;
+import javax.management.RuntimeErrorException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -10,6 +12,11 @@ import com.sdai.smartfarm.environment.tiles.Tile;
 import com.sdai.smartfarm.settings.WindowSettings;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.awt.Color;
 
 public class EnvironmentViewer extends JPanel {
@@ -23,17 +30,29 @@ public class EnvironmentViewer extends JPanel {
 
     private int tileSize;
 
-    // TODO: remove this it is here just for debug
-    Color[] coloredClusters;
+    private final BufferedImage droneOg;
+    private final BufferedImage robotOg;
+    private final BufferedImage tractorOg;
+
+    private BufferedImage drone;
+    private BufferedImage robot;
+    private BufferedImage tractor;
 
     public EnvironmentViewer(Environment environment) {
         this.environment = environment;
 
         worldX = environment.getWidth() / 2.0f;
         worldY = environment.getHeight() / 2.0f;
-        recomputeTileSize();
 
-        coloredClusters = new Color[environment.getWidth() * environment.getHeight()];
+        try {
+            droneOg = ImageIO.read(new File("drone.png"));
+            robotOg = ImageIO.read(new File("robot.png"));
+            tractorOg = ImageIO.read(new File("tractor.png"));
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        recomputeTileSize();
 
     }
 
@@ -164,21 +183,22 @@ public class EnvironmentViewer extends JPanel {
                     switch(agent.getType()) {
                         
                         case DRONE:
-                            g.setColor(new Color(44, 44, 44));
+                            //g.setColor(new Color(44, 44, 44));
+                            g.drawImage(drone, drawX, drawY, tileSize, tileSize, null);
                             break;
                         case ROBOT:
-                            g.setColor(new Color(88, 88, 150));
+                            g.drawImage(robot, drawX, drawY, tileSize, tileSize, null);
                             break;
                         case TRACTOR:
-                            g.setColor(new Color(200, 50, 50));
+                            g.drawImage(tractor, drawX, drawY, tileSize, tileSize, null);
                             break;
                     }
                         
-                    g.fillRect(drawX, drawY, tileSize, tileSize);
+                    /*g.fillRect(drawX, drawY, tileSize, tileSize);
 
                     g.setColor(Color.WHITE);
 
-                    g.drawRect(drawX, drawY, tileSize, tileSize);
+                    g.drawRect(drawX, drawY, tileSize, tileSize);*/
                 }
 
             }
@@ -200,6 +220,30 @@ public class EnvironmentViewer extends JPanel {
         tileSize = Math.min(width / windowSettings.gridSize(), height / windowSettings.gridSize());
 
         tileSize = Math.min(Math.max(tileSize, windowSettings.minTileSize()), windowSettings.maxTileSize());
+
+        drone = new BufferedImage(tileSize, tileSize, droneOg.getType());
+        Graphics2D g = drone.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(droneOg, 0, 0, tileSize, tileSize, 0, 0, droneOg.getWidth(),
+            droneOg.getHeight(), null);
+        g.dispose();
+
+        robot = new BufferedImage(tileSize, tileSize, robotOg.getType());
+        g = robot.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(robotOg, 0, 0, tileSize, tileSize, 0, 0, robotOg.getWidth(),
+            robotOg.getHeight(), null);
+        g.dispose();
+        
+        tractor = new BufferedImage(tileSize, tileSize, tractorOg.getType());
+        g = tractor.createGraphics();
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+            RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        g.drawImage(tractorOg, 0, 0, tileSize, tileSize, 0, 0, tractorOg.getWidth(),
+            tractorOg.getHeight(), null);
+        g.dispose();
     }
 
     public int getTileSize() {

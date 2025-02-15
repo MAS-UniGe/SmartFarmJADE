@@ -2,7 +2,10 @@ package com.sdai.smartfarm.agents.tractor;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.AgentType;
@@ -11,9 +14,9 @@ import com.sdai.smartfarm.agents.robot.RobotAgent;
 import com.sdai.smartfarm.agents.tractor.behaviours.TractorInitBehaviour;
 import com.sdai.smartfarm.environment.Environment;
 import com.sdai.smartfarm.environment.crops.CropsState;
-import com.sdai.smartfarm.logic.Distributions;
 import com.sdai.smartfarm.settings.AgentsSettings;
 import com.sdai.smartfarm.settings.CropsSettings;
+import com.sdai.smartfarm.utils.Distributions;
 
 public class TractorAgent extends BaseFarmingAgent {
 
@@ -39,6 +42,9 @@ public class TractorAgent extends BaseFarmingAgent {
     // BTW I cannot use an array here because of type erasure
     protected transient List<Deque<Double>> rewardsPredictionsMap;
 
+    // this is the tractor's equivalent of the robot's tasks -> might refactor it to reuse the code
+    protected transient Deque<Integer> fieldsToHarvest = new LinkedList<>();
+
     protected boolean evaluationScheduled = false;
 
     public boolean isEvaluationScheduled() {
@@ -47,6 +53,19 @@ public class TractorAgent extends BaseFarmingAgent {
 
     public void setEvaluationScheduled(boolean evaluationScheduled) {
         this.evaluationScheduled = evaluationScheduled;
+    }
+
+    public void assignFieldForHarvest(int fieldId) {
+        fieldsToHarvest.addLast(fieldId);
+    }
+    public void completeHarvest() {
+        fieldsToHarvest.poll();
+    }
+    public int getNextFieldToHarvest() {
+        return fieldsToHarvest.peek();
+    }
+    public int getHarvestSize() {
+        return fieldsToHarvest.size();
     }
 
     public List<Deque<Double>> getRewardsPredictionsMap() {

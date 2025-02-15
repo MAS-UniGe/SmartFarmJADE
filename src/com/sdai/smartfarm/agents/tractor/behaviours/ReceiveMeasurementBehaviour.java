@@ -5,8 +5,8 @@ import java.util.logging.Logger;
 
 import com.sdai.smartfarm.agents.tractor.TractorAgent;
 import com.sdai.smartfarm.environment.ObservedEnvironment;
-import com.sdai.smartfarm.logic.VectorUtils;
 import com.sdai.smartfarm.models.CropsGrowthMeasurement;
+import com.sdai.smartfarm.utils.VectorUtils;
 
 import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;

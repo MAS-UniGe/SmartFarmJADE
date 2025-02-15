@@ -87,6 +87,16 @@ public class HarvestCropsBehaviour extends FollowPathBehaviour {
 
         notifyAgents();
 
+        TractorAgent agent = (TractorAgent) getAgent();
+
+        agent.completeHarvest();
+
+        if(agent.getHarvestSize() > 0) {
+            int nextFieldId = agent.getNextFieldToHarvest();
+            
+            agent.addBehaviour(new HarvestCropsBehaviour(agent, getPeriod(), nextFieldId));
+        }
+
         super.stop();
     }
 

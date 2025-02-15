@@ -33,7 +33,7 @@ public class InitBehaviour extends OneShotBehaviour {
     protected void addBehaviours(BaseFarmingAgent agent) {
 
         agent.addBehaviour(new AgentDiscoveryBehaviour(agent, agentsSettings.agentDiscoveryInterval()));
-        agent.addBehaviour(new ReceiveHarvestNotificationBehaviour());
+        
     }
 
     @Override

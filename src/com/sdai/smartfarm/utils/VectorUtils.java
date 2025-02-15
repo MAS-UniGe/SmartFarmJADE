@@ -1,4 +1,4 @@
-package com.sdai.smartfarm.logic;
+package com.sdai.smartfarm.utils;
 
 import java.util.Arrays;
 import java.util.Collections;

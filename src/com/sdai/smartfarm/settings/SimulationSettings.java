@@ -1,5 +1,6 @@
 package com.sdai.smartfarm.settings;
 
+
 public record SimulationSettings(
     int mapWidth,
     int mapHeight,
@@ -8,19 +9,21 @@ public record SimulationSettings(
     float mouseSensitivity,
     int dronesNumber,
     int robotsNumber,
-    int tractorsNumber
+    int tractorsNumber,
+    boolean growthCheat
 ) {
 
     public static SimulationSettings defaultSimulationSettings() {
         return new SimulationSettings(
-            100, 
-            100,
-            80,
-            10,
-            1.0f,
-            2,
-            2,
-            1 // Right now there can only be one tractor!
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_MAP_WIDTH", "60")), 
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_MAP_HEIGHT", "60")),
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_TARGET_FPS", "80")),
+            Double.valueOf(System.getenv().getOrDefault("SIMULATION_TARGET_UPS", "10")),
+            Float.valueOf(System.getenv().getOrDefault("SIMULATION_MOUSE_SENSITIVITY", "1.0")),
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_DRONES_NUMBER", "4")),
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_ROBOTS_NUMBER", "6")),
+            Integer.valueOf(System.getenv().getOrDefault("SIMULATION_TRACTORS_NUMBER", "1")), 
+            Boolean.parseBoolean(System.getenv().getOrDefault("SIMULATION_GROWTH_CHEAT", "false"))
         );
     }
     

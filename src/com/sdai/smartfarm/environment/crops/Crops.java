@@ -36,14 +36,14 @@ public class Crops {
 
     public void removeWeeds() {
         needs.setWeedRemoval(false);
-        if(!needs.isThereAny() && state != CropsState.DEAD) {
+        if(!needs.isThereAny() && state != CropsState.DEAD && state != CropsState.MISSING) {
             state = CropsState.HEALTHY;
         }
     }
 
     public void water() {
         needs.setWatering(false);
-        if(!needs.isThereAny() && state != CropsState.DEAD) {
+        if(!needs.isThereAny() && state != CropsState.DEAD && state != CropsState.MISSING) {
             state = CropsState.HEALTHY;
         }
     }
@@ -63,9 +63,13 @@ public class Crops {
     }
 
     public void seed() {
+        seed(0.0);
+    }
+
+    public void seed(double cheat) {
         if (state == CropsState.MISSING) {
             state = CropsState.HEALTHY;
-            growth = 0.0;
+            growth = cheat;
         }
     }
 
@@ -94,6 +98,8 @@ public class Crops {
 
     public void update() {
 
+        if (state == CropsState.MISSING) return;
+
         if (decaying && rng.nextDouble() < settings.dyingChance()) 
             state = CropsState.DEAD;
 
@@ -121,7 +127,7 @@ public class Crops {
                     createNeeds();
                 break;
 
-            default: // DEAD or MISSING
+            default: // DEAD
                 return;
 
         }
