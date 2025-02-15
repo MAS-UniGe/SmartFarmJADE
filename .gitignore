@@ -1,6 +1,5 @@
 bin/
 libs/
 .vscode/
-docs/
 *.txt
 *.png
