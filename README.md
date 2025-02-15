@@ -3,6 +3,11 @@ if not already present, be sure to have the libraries:
 - elki-bundle-0.8.0.jar
 - jade.jar
 
+you will also need to add in the root directory 3 png images for the agents:
+- drone.png
+- robot.png
+- tractor.png 
+
 compile with:
 
 ```
