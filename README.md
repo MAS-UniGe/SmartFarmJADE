@@ -1,4 +1,4 @@
-if not already present, be sure to have the libraries:
+if not already present, be sure to have the libraries in your libs/ folder:
 
 - elki-bundle-0.8.0.jar
 - jade.jar
