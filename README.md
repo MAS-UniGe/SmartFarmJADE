@@ -6,7 +6,10 @@ if not already present, be sure to have the libraries in your libs/ folder:
 you will also need to add in the root directory 3 png images for the agents:
 - drone.png
 - robot.png
-- tractor.png 
+- tractor.png
+
+if you're a lazy person here's a link from the gitignored files I used
+https://drive.google.com/file/d/1d9uI3_FDBT9DP6ljGf9aqDR1u9Sap9xc/view?usp=drive_link
 
 compile with:
 
