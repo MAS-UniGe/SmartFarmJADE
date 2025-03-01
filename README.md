@@ -1,3 +1,7 @@
+## Individual Project for the Symbolic and Distributed AI course, University of Genova, IT 
+## Author: Gabriele Dellepere
+## Teacher: Viviana Mascardi
+
 if not already present, be sure to have the libraries in your libs/ folder:
 
 - elki-bundle-0.8.0.jar
