@@ -1,6 +1,7 @@
 ## Individual Project for the Symbolic and Distributed AI course, University of Genova, IT 
 ## Author: Gabriele Dellepere
-## Teacher: Viviana Mascardi
+### Teacher: Viviana Mascardi
+### Project delivered on February 2025
 
 if not already present, be sure to have the libraries in your libs/ folder:
 
